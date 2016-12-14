@@ -59,9 +59,9 @@ func (bsq *BasicSendQueue) sendLocalQueue() error {
 		select {
 		case bsq.channel <- slice:
 			bsq.index = 0
-			for i := 0; i < len(bsq.queueLocal); i++ {
-				bsq.queueLocal[i] = nil
-			}
+			//for i := 0; i < len(bsq.queueLocal); i++ {
+			//	bsq.queueLocal[i] = nil
+			//}
 		default:
 			err = errors.New("Unable to send")
 		}
