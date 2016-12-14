@@ -13,18 +13,18 @@ func NewBasicReceiveQueue(waitDuration time.Duration, channel chan []interface{}
 
 	return &BasicReceiveQueue{
 		waitDuration: waitDuration,
-		channel: channel,
+		channel:      channel,
 	}
 }
 
 func (brq *BasicReceiveQueue) PollWait() interface{} {
 
-	if (brq.lastQueue != nil) {
+	if brq.lastQueue != nil {
 		return brq.getItemFromLocalQueue()
 	}
 	brq.lastQueue = brq.ReadBatchWait()
 	brq.lastQueueIndex = 0
-	if (brq.lastQueue != nil) {
+	if brq.lastQueue != nil {
 		return brq.getItemFromLocalQueue()
 	} else {
 		return nil
@@ -33,12 +33,12 @@ func (brq *BasicReceiveQueue) PollWait() interface{} {
 
 func (brq *BasicReceiveQueue) Poll() interface{} {
 
-	if (brq.lastQueue != nil) {
+	if brq.lastQueue != nil {
 		return brq.getItemFromLocalQueue()
 	}
 	brq.lastQueue = brq.ReadBatch()
 	brq.lastQueueIndex = 0
-	if (brq.lastQueue != nil) {
+	if brq.lastQueue != nil {
 		return brq.getItemFromLocalQueue()
 	} else {
 		return nil
@@ -47,7 +47,7 @@ func (brq *BasicReceiveQueue) Poll() interface{} {
 }
 
 func (brq *BasicReceiveQueue) Take() interface{} {
-	if (brq.lastQueue != nil) {
+	if brq.lastQueue != nil {
 		return brq.getItemFromLocalQueue()
 	}
 	brq.lastQueue = brq.TakeBatch()
@@ -56,14 +56,14 @@ func (brq *BasicReceiveQueue) Take() interface{} {
 }
 
 func (brq *BasicReceiveQueue) TakeBatch() []interface{} {
-	if (brq.lastQueue != nil) {
+	if brq.lastQueue != nil {
 		return brq.returnBatch()
 	}
 	return <-brq.channel
 }
 
 func (brq *BasicReceiveQueue) ReadBatch() []interface{} {
-	if (brq.lastQueue != nil) {
+	if brq.lastQueue != nil {
 		return brq.returnBatch()
 	}
 
@@ -76,7 +76,7 @@ func (brq *BasicReceiveQueue) ReadBatch() []interface{} {
 }
 
 func (brq *BasicReceiveQueue) ReadBatchWait() []interface{} {
-	if (brq.lastQueue != nil) {
+	if brq.lastQueue != nil {
 		return brq.returnBatch()
 	}
 
@@ -98,7 +98,7 @@ func (brq *BasicReceiveQueue) Size() int {
 func (brq *BasicReceiveQueue) getItemFromLocalQueue() interface{} {
 	item := brq.lastQueue[brq.lastQueueIndex]
 	brq.lastQueueIndex++
-	if (brq.lastQueueIndex == len(brq.lastQueue)) {
+	if brq.lastQueueIndex == len(brq.lastQueue) {
 		brq.lastQueueIndex = 0
 		brq.lastQueue = nil
 	}
@@ -108,8 +108,8 @@ func (brq *BasicReceiveQueue) getItemFromLocalQueue() interface{} {
 func (brq *BasicReceiveQueue) returnBatch() []interface{} {
 	var items []interface{}
 
-	if (brq.lastQueueIndex > 0) {
-		items = brq.lastQueue[brq.lastQueueIndex: len(brq.lastQueue)]
+	if brq.lastQueueIndex > 0 {
+		items = brq.lastQueue[brq.lastQueueIndex:len(brq.lastQueue)]
 	} else {
 		items = brq.lastQueue
 	}

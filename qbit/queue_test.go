@@ -1,19 +1,22 @@
 package qbit
 
 import (
-	"testing"
-	"time"
 	tlg "github.com/advantageous/go-qbit/logging/test"
 	"strconv"
+<<<<<<< HEAD
+	"testing"
+	"time"
+=======
 
 	//	"sync/atomic"
 	"sync/atomic"
+>>>>>>> master
 )
 
 func TestQueueBasics(t *testing.T) {
 	logger := tlg.NewTestDebugLogger("test", t)
 
-	queue := NewQueue(10, 10, 10, "test", time.Millisecond * 100)
+	queue := NewQueue(10, 10, 10, time.Millisecond*100)
 	queueReceiver := queue.ReceiveQueue()
 	sendQueue := queue.SendQueue()
 
@@ -67,7 +70,7 @@ func TestQueueBasics(t *testing.T) {
 func TestOverBatch(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, "test", time.Millisecond * 100)
+	queue := NewQueue(5, 100, 10, time.Millisecond*100)
 	queueReceiver := queue.ReceiveQueue()
 	sendQueue := queue.SendQueue()
 
@@ -97,7 +100,7 @@ func TestOverBatch(t *testing.T) {
 func TestQueueAsync(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, "test", time.Millisecond * 100)
+	queue := NewQueue(5, 100, 10, time.Millisecond*100)
 	sendQueue := queue.SendQueue()
 	channel := make(chan interface{})
 
@@ -131,9 +134,10 @@ func TestQueueAsync(t *testing.T) {
 	if len(channel) != 0 {
 		logger.Error("Channel should be empty", len(channel))
 	}
-
 }
 
+<<<<<<< HEAD
+=======
 func TestListener(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
 
@@ -218,11 +222,12 @@ func TestListener(t *testing.T) {
 
 }
 
+>>>>>>> master
 func TestQueueAsyncStop(t *testing.T) {
 
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, "test", time.Millisecond * 100)
+	queue := NewQueue(5, 100, 10, time.Millisecond*100)
 	sendQueue := queue.SendQueue()
 	channel := make(chan interface{})
 
@@ -258,6 +263,8 @@ func TestQueueAsyncStop(t *testing.T) {
 		logger.Error("Channel should be not empty", len(channel))
 	}
 }
+<<<<<<< HEAD
+=======
 
 func TestAutoFlush(t *testing.T) {
 
@@ -281,3 +288,4 @@ func TestAutoFlush(t *testing.T) {
 
 }
 
+>>>>>>> master

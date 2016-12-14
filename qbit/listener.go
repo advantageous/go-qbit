@@ -1,5 +1,14 @@
 package qbit
 
+<<<<<<< HEAD
+func NewListener() ReceiveQueueListener {
+	return &BaseReceiveQueueListener{}
+}
+
+func NewListenerReceive(receiveFunc func(item interface{})) ReceiveQueueListener {
+
+	return &BaseReceiveQueueListener{receive: receiveFunc}
+=======
 func NewListenerReceive(receiveFunc func(item interface{})) ReceiveQueueListener {
 	return NewQueueListener(&QueueListener{Receive:receiveFunc})
 }
@@ -48,6 +57,7 @@ type QueueListener struct {
 	Idle       func()
 	StartBatch func()
 	Limit      func()
+>>>>>>> master
 }
 
 type BaseReceiveQueueListener struct {
@@ -78,6 +88,11 @@ func (l *BaseReceiveQueueListener) Shutdown() {
 func (l *BaseReceiveQueueListener) Idle() {
 	l.idle()
 }
+<<<<<<< HEAD
+func (*BaseReceiveQueueListener) StartBatch() {
+}
+=======
 func (l *BaseReceiveQueueListener) StartBatch() {
 	l.startBatch()
 }
+>>>>>>> master

@@ -1,28 +1,26 @@
 package qbit
 
 import (
+	"errors"
 	"sync/atomic"
 	"time"
-	"errors"
 )
 
-type  BasicQueue struct {
+type BasicQueue struct {
 	channel          chan []interface{}
 	batchSize        int
 	channelSize      int
 	limit            int
-	name             string
 	pollWaitDuration time.Duration
 	started          int64
 }
 
-func NewQueue(batchSize int, channelSize int, limit int, name string, pollWaitDuration time.Duration) Queue {
+func NewQueue(batchSize int, channelSize int, limit int, pollWaitDuration time.Duration) Queue {
 	channel := make(chan []interface{}, channelSize)
 	return &BasicQueue{
-		channel: channel,
-		batchSize: batchSize,
-		limit: limit,
-		name: name,
+		channel:          channel,
+		batchSize:        batchSize,
+		limit:            limit,
 		pollWaitDuration: pollWaitDuration,
 	}
 }
@@ -57,7 +55,7 @@ func (bq *BasicQueue) SendQueueWithAutoFlush(flushDuration time.Duration) SendQu
 	return sendQueue
 }
 
-func (bq *BasicQueue)  StartListener(listener ReceiveQueueListener) error {
+func (bq *BasicQueue) StartListener(listener ReceiveQueueListener) error {
 	var err error
 
 	if bq.Started() {
@@ -68,25 +66,21 @@ func (bq *BasicQueue)  StartListener(listener ReceiveQueueListener) error {
 	return err
 }
 
-func (bq *BasicQueue)  Started() bool {
+func (bq *BasicQueue) Started() bool {
 	started := atomic.LoadInt64(&bq.started)
 	return started == 1
 }
 
-func (bq *BasicQueue)  Stopped() bool {
+func (bq *BasicQueue) Stopped() bool {
 	started := atomic.LoadInt64(&bq.started)
 	return started == 0
 }
 
-func (bq *BasicQueue)  Size() int {
+func (bq *BasicQueue) Size() int {
 	return len(bq.channel)
 }
 
-func (bq *BasicQueue)  Name() string {
-	return bq.name
-}
-
-func (bq *BasicQueue)  Stop() error {
+func (bq *BasicQueue) Stop() error {
 	var err error
 	if !bq.Started() {
 		err = errors.New("Cant' stop Queue, it was not started")
@@ -95,4 +89,3 @@ func (bq *BasicQueue)  Stop() error {
 	}
 	return err
 }
-

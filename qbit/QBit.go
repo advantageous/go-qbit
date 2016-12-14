@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type Queue  interface {
+type Queue interface {
 	ReceiveQueue() ReceiveQueue
 	SendQueue() SendQueue
 	SendQueueWithAutoFlush(duration time.Duration) SendQueue
@@ -40,7 +40,3 @@ type ReceiveQueueListener interface {
 	Idle()
 	StartBatch()
 }
-
-
-
-

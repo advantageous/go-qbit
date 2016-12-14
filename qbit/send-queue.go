@@ -14,7 +14,11 @@ type BasicSendQueue struct {
 	queueLocal []interface{}
 }
 
+<<<<<<< HEAD
+func NewSendQueue(channel chan []interface{}, owner Queue, batchSize int, logger logging.Logger) SendQueue {
+=======
 func NewSendQueue(channel chan []interface{}, owner Queue, batchSize  int, logger logging.Logger) SendQueue {
+>>>>>>> master
 
 	if logger == nil {
 		logger = logging.GetSimpleLogger("QBIT_SIMPLE_QUEUE", "sender")
@@ -23,10 +27,10 @@ func NewSendQueue(channel chan []interface{}, owner Queue, batchSize  int, logge
 	queueLocal := make([]interface{}, batchSize)
 
 	return &BasicSendQueue{
-		channel: channel,
-		owner: owner,
-		batchSize: batchSize,
-		logger: logger,
+		channel:    channel,
+		owner:      owner,
+		batchSize:  batchSize,
+		logger:     logger,
 		queueLocal: queueLocal,
 	}
 }
@@ -39,7 +43,11 @@ func (bsq *BasicSendQueue) Send(item interface{}) error {
 	}
 	bsq.queueLocal[bsq.index] = item
 	bsq.index++
+<<<<<<< HEAD
+	return ableToSend, nil
+=======
 	return err
+>>>>>>> master
 }
 
 func (bsq *BasicSendQueue) flushIfOverBatch() error {
@@ -65,6 +73,11 @@ func (bsq *BasicSendQueue) sendLocalQueue() error {
 		default:
 			err = errors.New("Unable to send")
 		}
+<<<<<<< HEAD
+	} else {
+		return true
+=======
+>>>>>>> master
 	}
 	return err
 }
