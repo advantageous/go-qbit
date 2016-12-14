@@ -12,7 +12,6 @@ type Queue  interface {
 	Started() bool
 	Stopped() bool
 	Size() int
-	Name() string
 	Stop() error
 }
 
@@ -20,7 +19,6 @@ type SendQueue interface {
 	Send(item interface{}) error
 	FlushSends() error
 	Size() int
-	Name() string
 }
 
 type ReceiveQueue interface {

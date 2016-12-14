@@ -6,7 +6,7 @@ import (
 	tlg "github.com/advantageous/go-qbit/logging/test"
 	"strconv"
 
-//	"sync/atomic"
+	//	"sync/atomic"
 	"sync/atomic"
 )
 
@@ -84,17 +84,15 @@ func TestOverBatch(t *testing.T) {
 	}
 	sendQueue.FlushSends()
 
-	count :=0
+	count := 0
 	for ; count < 100; count++ {
 		logger.Debug(queueReceiver.Poll().(string))
 	}
 
 	if count != 100 {
-		logger.Error("Count is wrong", count, sendQueue.Name())
+		logger.Error("Count is wrong", count)
 	}
 }
-
-
 
 func TestQueueAsync(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
@@ -118,12 +116,11 @@ func TestQueueAsync(t *testing.T) {
 
 	queue.StartListener(listener)
 
-
-	count :=0
+	count := 0
 	for item := range channel {
 		logger.Debug(item)
 		count++
-		if count == 100  {
+		if count == 100 {
 			break
 		}
 	}
@@ -131,13 +128,11 @@ func TestQueueAsync(t *testing.T) {
 	if count != 100 {
 		logger.Error("Count should be 100")
 	}
-	if len(channel) !=  0 {
+	if len(channel) != 0 {
 		logger.Error("Channel should be empty", len(channel))
 	}
 
 }
-
-
 
 func TestListener(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
@@ -149,19 +144,28 @@ func TestListener(t *testing.T) {
 	var initCalled, shutdownCalled, limitCalled, idleCalled, startBatchCalled, emptyCalled int64
 
 	listener := NewQueueListener(&QueueListener{
-		Init: func() { atomic.AddInt64(&initCalled, 1)},
-		Shutdown: func() { atomic.AddInt64(&shutdownCalled, 1)},
-		Limit: func() { atomic.AddInt64(&limitCalled, 1)},
-		Idle: func() { atomic.AddInt64(&idleCalled, 1)},
-		StartBatch: func() {atomic.AddInt64(&startBatchCalled, 1)},
-		Empty: func() {atomic.AddInt64(&emptyCalled, 1)},
+		Init: func() {
+			atomic.AddInt64(&initCalled, 1)
+		},
+		Shutdown: func() {
+			atomic.AddInt64(&shutdownCalled, 1)
+		},
+		Limit: func() {
+			atomic.AddInt64(&limitCalled, 1)
+		},
+		Idle: func() {
+			atomic.AddInt64(&idleCalled, 1)
+		},
+		StartBatch: func() {
+			atomic.AddInt64(&startBatchCalled, 1)
+		},
+		Empty: func() {
+			atomic.AddInt64(&emptyCalled, 1)
+		},
 		Receive: func(item interface{}) {
 			channel <- item
 		},
 	})
-
-
-
 
 	addItems := func() {
 		for i := 0; i < 100; i++ {
@@ -181,12 +185,11 @@ func TestListener(t *testing.T) {
 	queue.StartListener(listener)
 	logger.Info("AFTER LISTENER")
 
-
-	count :=0
+	count := 0
 	for item := range channel {
 		logger.Debug(item)
 		count++
-		if count == 100  {
+		if count == 100 {
 			break
 		}
 	}
@@ -198,7 +201,7 @@ func TestListener(t *testing.T) {
 	if count != 100 {
 		logger.Error("Count should be 100")
 	}
-	if len(channel) !=  0 {
+	if len(channel) != 0 {
 		logger.Error("Channel should be empty", len(channel))
 	}
 
@@ -210,7 +213,6 @@ func TestListener(t *testing.T) {
 		"\nidleCalled %d, startBatchCalled %d, emptyCalled %d",
 		initCalled, shutdownCalled, limitCalled,
 		idleCalled, startBatchCalled, emptyCalled)
-
 
 	NewQueueListener(&QueueListener{})
 
@@ -252,11 +254,10 @@ func TestQueueAsyncStop(t *testing.T) {
 	queue.Stop()
 	queue.Stop()
 
-	if len(channel) >  0 {
+	if len(channel) > 0 {
 		logger.Error("Channel should be not empty", len(channel))
 	}
 }
-
 
 func TestAutoFlush(t *testing.T) {
 
@@ -270,7 +271,7 @@ func TestAutoFlush(t *testing.T) {
 
 	item := receiveQueue.Take()
 
-	if item!="Hi Mom" {
+	if item != "Hi Mom" {
 		logger.Error("Item is not equal to Hi Mom")
 	}
 
@@ -278,8 +279,5 @@ func TestAutoFlush(t *testing.T) {
 		logger.Error("Size wrong")
 	}
 
-	if sendQueue.Name() != "test" {
-		logger.Error("Name wrong", sendQueue.Name())
-	}
 }
 

@@ -14,10 +14,10 @@ type BasicSendQueue struct {
 	queueLocal []interface{}
 }
 
-func NewSendQueue(channel chan []interface{}, owner Queue, batchSize  int, logger logging.Logger) SendQueue{
+func NewSendQueue(channel chan []interface{}, owner Queue, batchSize  int, logger logging.Logger) SendQueue {
 
 	if logger == nil {
-		logger = logging.GetSimpleLogger("QBIT_SIMPLE_QUEUE", owner.Name() + "-sender")
+		logger = logging.GetSimpleLogger("QBIT_SIMPLE_QUEUE", "sender")
 	}
 
 	queueLocal := make([]interface{}, batchSize)
@@ -34,7 +34,7 @@ func NewSendQueue(channel chan []interface{}, owner Queue, batchSize  int, logge
 func (bsq *BasicSendQueue) Send(item interface{}) error {
 
 	err := bsq.flushIfOverBatch()
-	if err!=nil {
+	if err != nil {
 		return err
 	}
 	bsq.queueLocal[bsq.index] = item
@@ -42,11 +42,11 @@ func (bsq *BasicSendQueue) Send(item interface{}) error {
 	return err
 }
 
-func (bsq *BasicSendQueue) flushIfOverBatch() error  {
+func (bsq *BasicSendQueue) flushIfOverBatch() error {
 	if ( bsq.index < bsq.batchSize ) {
 		return nil
 	} else {
-		return  bsq.sendLocalQueue()
+		return bsq.sendLocalQueue()
 	}
 }
 
@@ -59,9 +59,9 @@ func (bsq *BasicSendQueue) sendLocalQueue() error {
 		select {
 		case bsq.channel <- slice:
 			bsq.index = 0
-			//for i := 0; i < len(bsq.queueLocal); i++ {
-			//	bsq.queueLocal[i] = nil
-			//}
+		//for i := 0; i < len(bsq.queueLocal); i++ {
+		//	bsq.queueLocal[i] = nil
+		//}
 		default:
 			err = errors.New("Unable to send")
 		}
@@ -75,8 +75,4 @@ func (bsq *BasicSendQueue) FlushSends() error {
 
 func (bsq *BasicSendQueue) Size() int {
 	return len(bsq.channel)
-}
-
-func (bsq *BasicSendQueue) Name() string {
-	return bsq.owner.Name()
 }
