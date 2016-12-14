@@ -1,16 +1,11 @@
 package qbit
 
-<<<<<<< HEAD
 func NewListener() ReceiveQueueListener {
 	return &BaseReceiveQueueListener{}
 }
 
 func NewListenerReceive(receiveFunc func(item interface{})) ReceiveQueueListener {
-
-	return &BaseReceiveQueueListener{receive: receiveFunc}
-=======
-func NewListenerReceive(receiveFunc func(item interface{})) ReceiveQueueListener {
-	return NewQueueListener(&QueueListener{Receive:receiveFunc})
+	return NewQueueListener(&QueueListener{Receive: receiveFunc})
 }
 
 var EmptyFunc func() = func() {}
@@ -39,13 +34,13 @@ func NewQueueListener(queueListener *QueueListener) ReceiveQueueListener {
 		queueListener.Limit = EmptyFunc
 	}
 	return &BaseReceiveQueueListener{
-		init:queueListener.Init,
-		receive:queueListener.Receive,
-		empty:queueListener.Empty,
-		shutdown:queueListener.Shutdown,
-		idle:queueListener.Idle,
-		startBatch:queueListener.StartBatch,
-		limit:queueListener.Limit,
+		init:       queueListener.Init,
+		receive:    queueListener.Receive,
+		empty:      queueListener.Empty,
+		shutdown:   queueListener.Shutdown,
+		idle:       queueListener.Idle,
+		startBatch: queueListener.StartBatch,
+		limit:      queueListener.Limit,
 	}
 }
 
@@ -57,7 +52,6 @@ type QueueListener struct {
 	Idle       func()
 	StartBatch func()
 	Limit      func()
->>>>>>> master
 }
 
 type BaseReceiveQueueListener struct {
@@ -88,11 +82,6 @@ func (l *BaseReceiveQueueListener) Shutdown() {
 func (l *BaseReceiveQueueListener) Idle() {
 	l.idle()
 }
-<<<<<<< HEAD
-func (*BaseReceiveQueueListener) StartBatch() {
-}
-=======
 func (l *BaseReceiveQueueListener) StartBatch() {
 	l.startBatch()
 }
->>>>>>> master

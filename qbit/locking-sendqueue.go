@@ -12,7 +12,7 @@ type LockingSendQueue struct {
 func NewLockingSendQueue(sendQueue SendQueue) SendQueue {
 	rw := sync.RWMutex{}
 	return &LockingSendQueue{
-		rw : rw,
+		rw:        rw,
 		sendQueue: sendQueue,
 	}
 }
@@ -34,4 +34,3 @@ func (lq *LockingSendQueue) Size() int {
 	defer lq.rw.RUnlock()
 	return lq.sendQueue.Size()
 }
-

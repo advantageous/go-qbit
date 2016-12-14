@@ -1,8 +1,8 @@
 package qbit
 
 import (
-	"github.com/advantageous/go-qbit/logging"
 	"errors"
+	"github.com/advantageous/go-qbit/logging"
 )
 
 type BasicSendQueue struct {
@@ -14,11 +14,7 @@ type BasicSendQueue struct {
 	queueLocal []interface{}
 }
 
-<<<<<<< HEAD
 func NewSendQueue(channel chan []interface{}, owner Queue, batchSize int, logger logging.Logger) SendQueue {
-=======
-func NewSendQueue(channel chan []interface{}, owner Queue, batchSize  int, logger logging.Logger) SendQueue {
->>>>>>> master
 
 	if logger == nil {
 		logger = logging.GetSimpleLogger("QBIT_SIMPLE_QUEUE", "sender")
@@ -36,22 +32,17 @@ func NewSendQueue(channel chan []interface{}, owner Queue, batchSize  int, logge
 }
 
 func (bsq *BasicSendQueue) Send(item interface{}) error {
-
 	err := bsq.flushIfOverBatch()
 	if err != nil {
 		return err
 	}
 	bsq.queueLocal[bsq.index] = item
 	bsq.index++
-<<<<<<< HEAD
-	return ableToSend, nil
-=======
 	return err
->>>>>>> master
 }
 
 func (bsq *BasicSendQueue) flushIfOverBatch() error {
-	if ( bsq.index < bsq.batchSize ) {
+	if bsq.index < bsq.batchSize {
 		return nil
 	} else {
 		return bsq.sendLocalQueue()
@@ -73,11 +64,6 @@ func (bsq *BasicSendQueue) sendLocalQueue() error {
 		default:
 			err = errors.New("Unable to send")
 		}
-<<<<<<< HEAD
-	} else {
-		return true
-=======
->>>>>>> master
 	}
 	return err
 }

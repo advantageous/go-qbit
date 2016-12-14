@@ -3,14 +3,9 @@ package qbit
 import (
 	tlg "github.com/advantageous/go-qbit/logging/test"
 	"strconv"
-<<<<<<< HEAD
+	"sync/atomic"
 	"testing"
 	"time"
-=======
-
-	//	"sync/atomic"
-	"sync/atomic"
->>>>>>> master
 )
 
 func TestQueueBasics(t *testing.T) {
@@ -136,12 +131,10 @@ func TestQueueAsync(t *testing.T) {
 	}
 }
 
-<<<<<<< HEAD
-=======
 func TestListener(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, "test", time.Millisecond * 20)
+	queue := NewQueue(5, 100, 10, time.Millisecond*20)
 	sendQueue := queue.SendQueueWithAutoFlush(10 * time.Millisecond)
 	channel := make(chan interface{})
 
@@ -175,7 +168,7 @@ func TestListener(t *testing.T) {
 		for i := 0; i < 100; i++ {
 			sendQueue.Send(strconv.Itoa(i))
 
-			if i > 70 && i % 10 == 0 {
+			if i > 70 && i%10 == 0 {
 				timer := time.NewTimer(100 * time.Millisecond)
 				<-timer.C
 			}
@@ -213,7 +206,7 @@ func TestListener(t *testing.T) {
 
 	<-time.NewTimer(100 * time.Millisecond).C
 
-	logger.Infof("\ninitCalled %d, shutdownCalled %d, limitCalled %d, " +
+	logger.Infof("\ninitCalled %d, shutdownCalled %d, limitCalled %d, "+
 		"\nidleCalled %d, startBatchCalled %d, emptyCalled %d",
 		initCalled, shutdownCalled, limitCalled,
 		idleCalled, startBatchCalled, emptyCalled)
@@ -222,7 +215,6 @@ func TestListener(t *testing.T) {
 
 }
 
->>>>>>> master
 func TestQueueAsyncStop(t *testing.T) {
 
 	logger := tlg.NewTestSimpleLogger("test", t)
@@ -263,14 +255,12 @@ func TestQueueAsyncStop(t *testing.T) {
 		logger.Error("Channel should be not empty", len(channel))
 	}
 }
-<<<<<<< HEAD
-=======
 
 func TestAutoFlush(t *testing.T) {
 
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, "test", time.Millisecond * 100)
+	queue := NewQueue(5, 100, 10, time.Millisecond*100)
 	sendQueue := queue.SendQueueWithAutoFlush(time.Millisecond * 10)
 	receiveQueue := queue.ReceiveQueue()
 
@@ -287,5 +277,3 @@ func TestAutoFlush(t *testing.T) {
 	}
 
 }
-
->>>>>>> master
