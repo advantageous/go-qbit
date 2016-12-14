@@ -1,17 +1,16 @@
 package qbit
 
 import (
-	"testing"
-	"time"
 	tlg "github.com/advantageous/go-qbit/logging/test"
 	"strconv"
-
+	"testing"
+	"time"
 )
 
 func TestQueueBasics(t *testing.T) {
 	logger := tlg.NewTestDebugLogger("test", t)
 
-	queue := NewQueue(10, 10, 10, "test", time.Millisecond * 100)
+	queue := NewQueue(10, 10, 10, time.Millisecond*100)
 	queueReceiver := queue.ReceiveQueue()
 	sendQueue := queue.SendQueue()
 
@@ -65,7 +64,7 @@ func TestQueueBasics(t *testing.T) {
 func TestOverBatch(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, "test", time.Millisecond * 100)
+	queue := NewQueue(5, 100, 10, time.Millisecond*100)
 	queueReceiver := queue.ReceiveQueue()
 	sendQueue := queue.SendQueue()
 
@@ -82,22 +81,20 @@ func TestOverBatch(t *testing.T) {
 	}
 	sendQueue.FlushSends()
 
-	count :=0
+	count := 0
 	for ; count < 100; count++ {
 		logger.Debug(queueReceiver.Poll().(string))
 	}
 
 	if count != 100 {
-		logger.Error("Count is wrong", count, sendQueue.Name())
+		logger.Error("Count is wrong", count)
 	}
 }
-
-
 
 func TestQueueAsync(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, "test", time.Millisecond * 100)
+	queue := NewQueue(5, 100, 10, time.Millisecond*100)
 	sendQueue := queue.SendQueue()
 	channel := make(chan interface{})
 
@@ -116,12 +113,11 @@ func TestQueueAsync(t *testing.T) {
 
 	queue.StartListener(listener)
 
-
-	count :=0
+	count := 0
 	for item := range channel {
 		logger.Debug(item)
 		count++
-		if count == 100  {
+		if count == 100 {
 			break
 		}
 	}
@@ -129,18 +125,16 @@ func TestQueueAsync(t *testing.T) {
 	if count != 100 {
 		logger.Error("Count should be 100")
 	}
-	if len(channel) !=  0 {
+	if len(channel) != 0 {
 		logger.Error("Channel should be empty", len(channel))
 	}
-
 }
-
 
 func TestQueueAsyncStop(t *testing.T) {
 
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, "test", time.Millisecond * 100)
+	queue := NewQueue(5, 100, 10, time.Millisecond*100)
 	sendQueue := queue.SendQueue()
 	channel := make(chan interface{})
 
@@ -172,8 +166,7 @@ func TestQueueAsyncStop(t *testing.T) {
 	queue.Stop()
 	queue.Stop()
 
-	if len(channel) >  0 {
+	if len(channel) > 0 {
 		logger.Error("Channel should be not empty", len(channel))
 	}
 }
-

@@ -1,22 +1,20 @@
 package qbit
 
-
-func NewListener () ReceiveQueueListener {
-	return  &BaseReceiveQueueListener{}
+func NewListener() ReceiveQueueListener {
+	return &BaseReceiveQueueListener{}
 }
 
+func NewListenerReceive(receiveFunc func(item interface{})) ReceiveQueueListener {
 
-func NewListenerReceive (receiveFunc func(item interface{})) ReceiveQueueListener {
-
-	return &BaseReceiveQueueListener{receive:receiveFunc}
+	return &BaseReceiveQueueListener{receive: receiveFunc}
 }
 
 type BaseReceiveQueueListener struct {
-	init func()
-	receive func(item interface{})
-	empty func()
-	shutdown func()
-	idle func()
+	init       func()
+	receive    func(item interface{})
+	empty      func()
+	shutdown   func()
+	idle       func()
 	startBatch func()
 }
 

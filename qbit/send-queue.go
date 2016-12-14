@@ -13,19 +13,19 @@ type BasicSendQueue struct {
 	queueLocal []interface{}
 }
 
-func NewSendQueue(channel chan []interface{}, owner Queue, batchSize  int, logger logging.Logger) SendQueue{
+func NewSendQueue(channel chan []interface{}, owner Queue, batchSize int, logger logging.Logger) SendQueue {
 
 	if logger == nil {
-		logger = logging.GetSimpleLogger("QBIT_SIMPLE_QUEUE", owner.Name() + "-sender")
+		logger = logging.GetSimpleLogger("QBIT_SIMPLE_QUEUE", "sender")
 	}
 
 	queueLocal := make([]interface{}, batchSize)
 
 	return &BasicSendQueue{
-		channel: channel,
-		owner: owner,
-		batchSize: batchSize,
-		logger: logger,
+		channel:    channel,
+		owner:      owner,
+		batchSize:  batchSize,
+		logger:     logger,
 		queueLocal: queueLocal,
 	}
 }
@@ -34,8 +34,8 @@ func (bsq *BasicSendQueue) Send(item interface{}) (bool, error) {
 
 	ableToSend := bsq.flushIfOverBatch()
 	bsq.queueLocal[bsq.index] = item
-	bsq.index++;
-	return ableToSend, nil;
+	bsq.index++
+	return ableToSend, nil
 }
 
 func (bsq *BasicSendQueue) flushIfOverBatch() bool {
@@ -58,7 +58,7 @@ func (bsq *BasicSendQueue) sendLocalQueue() bool {
 			return false
 		}
 	} else {
-		return true;
+		return true
 	}
 }
 
@@ -69,8 +69,4 @@ func (bsq *BasicSendQueue) FlushSends() error {
 
 func (bsq *BasicSendQueue) Size() int {
 	return len(bsq.channel)
-}
-
-func (bsq *BasicSendQueue) Name() string {
-	return bsq.owner.Name()
 }

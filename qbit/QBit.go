@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type Queue  interface {
+type Queue interface {
 	ReceiveQueue() ReceiveQueue
 	SendQueue() SendQueue
 	SendQueueWithAutoFlush(interval int, duration time.Duration) SendQueue
@@ -12,7 +12,6 @@ type Queue  interface {
 	Started() bool
 	Stopped() bool
 	Size() int
-	Name() string
 	Stop() error
 }
 
@@ -20,7 +19,6 @@ type SendQueue interface {
 	Send(item interface{}) (bool, error)
 	FlushSends() error
 	Size() int
-	Name() string
 }
 
 type ReceiveQueue interface {
@@ -42,7 +40,3 @@ type ReceiveQueueListener interface {
 	Idle()
 	StartBatch()
 }
-
-
-
-

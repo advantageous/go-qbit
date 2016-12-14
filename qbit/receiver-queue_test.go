@@ -1,10 +1,10 @@
 package qbit
 
 import (
+	lg "github.com/advantageous/go-qbit/logging"
+	tlg "github.com/advantageous/go-qbit/logging/test"
 	"testing"
 	"time"
-	tlg "github.com/advantageous/go-qbit/logging/test"
-	lg "github.com/advantageous/go-qbit/logging"
 )
 
 func TestBasics(t *testing.T) {
@@ -12,7 +12,7 @@ func TestBasics(t *testing.T) {
 
 	channel := make(chan []interface{}, 10)
 
-	queueReceiver := NewBasicReceiveQueue(time.Millisecond * 10, channel)
+	queueReceiver := NewBasicReceiveQueue(time.Millisecond*10, channel)
 
 	channel <- []interface{}{"Hello"}
 	channel <- []interface{}{"How", "Are", "You"}
@@ -53,7 +53,7 @@ func TestBasics(t *testing.T) {
 func setupSinglePoll(t *testing.T) (ReceiveQueue, lg.Logger) {
 	logger := tlg.NewTestDebugLogger("test", t)
 	channel := make(chan []interface{}, 10)
-	queueReceiver := NewBasicReceiveQueue(time.Millisecond * 10, channel)
+	queueReceiver := NewBasicReceiveQueue(time.Millisecond*10, channel)
 
 	channel <- []interface{}{"0a", "0b", "0c"}
 	channel <- []interface{}{"1a", "1b", "1c"}
@@ -66,7 +66,7 @@ func setup(t *testing.T) (ReceiveQueue, lg.Logger) {
 
 	channel := make(chan []interface{}, 10)
 
-	queueReceiver := NewBasicReceiveQueue(time.Millisecond * 10, channel)
+	queueReceiver := NewBasicReceiveQueue(time.Millisecond*10, channel)
 
 	channel <- []interface{}{"How", "Are", "You"}
 	return queueReceiver, logger
@@ -94,7 +94,7 @@ func TestPollWait(t *testing.T) {
 func TestEmpty(t *testing.T) {
 	logger := tlg.NewTestDebugLogger("test", t)
 	channel := make(chan []interface{}, 10)
-	queueReceiver := NewBasicReceiveQueue(time.Millisecond * 500, channel)
+	queueReceiver := NewBasicReceiveQueue(time.Millisecond*500, channel)
 
 	item := queueReceiver.PollWait()
 
