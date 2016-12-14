@@ -1,7 +1,6 @@
 package qbit
 
 import (
-	"errors"
 	"github.com/advantageous/go-qbit/logging"
 )
 
@@ -50,22 +49,12 @@ func (bsq *BasicSendQueue) flushIfOverBatch() error {
 }
 
 func (bsq *BasicSendQueue) sendLocalQueue() error {
-	var err error
 	if bsq.index > 0 {
-		slice := make([]interface{}, bsq.index)
-		copy(slice, bsq.queueLocal)
-
-		select {
-		case bsq.channel <- slice:
-			bsq.index = 0
-		//for i := 0; i < len(bsq.queueLocal); i++ {
-		//	bsq.queueLocal[i] = nil
-		//}
-		default:
-			err = errors.New("Unable to send")
-		}
+		bsq.channel <- bsq.queueLocal[0:bsq.index]
+		bsq.index = 0
+		bsq.queueLocal = make([]interface{}, bsq.batchSize)
 	}
-	return err
+	return nil
 }
 
 func (bsq *BasicSendQueue) FlushSends() error {

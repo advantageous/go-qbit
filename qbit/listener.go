@@ -5,53 +5,53 @@ func NewListener() ReceiveQueueListener {
 }
 
 func NewListenerReceive(receiveFunc func(item interface{})) ReceiveQueueListener {
-	return NewQueueListener(&QueueListener{Receive: receiveFunc})
+	return NewQueueListener(&QueueListener{ReceiveFunc: receiveFunc})
 }
 
 var EmptyFunc func() = func() {}
 
 func NewQueueListener(queueListener *QueueListener) ReceiveQueueListener {
 
-	if queueListener.Init == nil {
-		queueListener.Init = EmptyFunc
+	if queueListener.InitFunc == nil {
+		queueListener.InitFunc = EmptyFunc
 	}
-	if queueListener.Receive == nil {
-		queueListener.Receive = func(item interface{}) {}
+	if queueListener.ReceiveFunc == nil {
+		queueListener.ReceiveFunc = func(item interface{}) {}
 	}
-	if queueListener.Empty == nil {
-		queueListener.Empty = EmptyFunc
+	if queueListener.EmptyFunc == nil {
+		queueListener.EmptyFunc = EmptyFunc
 	}
-	if queueListener.Shutdown == nil {
-		queueListener.Shutdown = EmptyFunc
+	if queueListener.ShutdownFunc == nil {
+		queueListener.ShutdownFunc = EmptyFunc
 	}
-	if queueListener.Idle == nil {
-		queueListener.Idle = EmptyFunc
+	if queueListener.IdleFunc == nil {
+		queueListener.IdleFunc = EmptyFunc
 	}
-	if queueListener.StartBatch == nil {
-		queueListener.StartBatch = EmptyFunc
+	if queueListener.StartBatchFunc == nil {
+		queueListener.StartBatchFunc = EmptyFunc
 	}
-	if queueListener.Limit == nil {
-		queueListener.Limit = EmptyFunc
+	if queueListener.LimitFunc == nil {
+		queueListener.LimitFunc = EmptyFunc
 	}
 	return &BaseReceiveQueueListener{
-		init:       queueListener.Init,
-		receive:    queueListener.Receive,
-		empty:      queueListener.Empty,
-		shutdown:   queueListener.Shutdown,
-		idle:       queueListener.Idle,
-		startBatch: queueListener.StartBatch,
-		limit:      queueListener.Limit,
+		init:       queueListener.InitFunc,
+		receive:    queueListener.ReceiveFunc,
+		empty:      queueListener.EmptyFunc,
+		shutdown:   queueListener.ShutdownFunc,
+		idle:       queueListener.IdleFunc,
+		startBatch: queueListener.StartBatchFunc,
+		limit:      queueListener.LimitFunc,
 	}
 }
 
 type QueueListener struct {
-	Init       func()
-	Receive    func(item interface{})
-	Empty      func()
-	Shutdown   func()
-	Idle       func()
-	StartBatch func()
-	Limit      func()
+	InitFunc       func()
+	ReceiveFunc    func(item interface{})
+	EmptyFunc      func()
+	ShutdownFunc   func()
+	IdleFunc      func()
+	StartBatchFunc func()
+	LimitFunc      func()
 }
 
 type BaseReceiveQueueListener struct {

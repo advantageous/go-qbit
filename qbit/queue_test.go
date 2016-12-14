@@ -11,7 +11,8 @@ import (
 func TestQueueBasics(t *testing.T) {
 	logger := tlg.NewTestDebugLogger("test", t)
 
-	queue := NewQueue(10, 10, 10, time.Millisecond*100)
+	listener:=NewQueueListener(&QueueListener{})
+	queue := NewActiveQueue(10, 10, 10, time.Millisecond * 100, listener)
 	queueReceiver := queue.ReceiveQueue()
 	sendQueue := queue.SendQueue()
 
@@ -65,7 +66,7 @@ func TestQueueBasics(t *testing.T) {
 func TestOverBatch(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, time.Millisecond*100)
+	queue := NewQueue(5, 100, 10, time.Millisecond * 100)
 	queueReceiver := queue.ReceiveQueue()
 	sendQueue := queue.SendQueue()
 
@@ -95,13 +96,14 @@ func TestOverBatch(t *testing.T) {
 func TestQueueAsync(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, time.Millisecond*100)
-	sendQueue := queue.SendQueue()
 	channel := make(chan interface{})
 
 	listener := NewListenerReceive(func(item interface{}) {
 		channel <- item
 	})
+
+	queue := NewActiveQueue(5, 100, 10, time.Millisecond * 100, listener)
+	sendQueue := queue.SendQueue()
 
 	addItems := func() {
 		for i := 0; i < 100; i++ {
@@ -111,8 +113,6 @@ func TestQueueAsync(t *testing.T) {
 	}
 
 	go addItems()
-
-	queue.StartListener(listener)
 
 	count := 0
 	for item := range channel {
@@ -133,42 +133,42 @@ func TestQueueAsync(t *testing.T) {
 
 func TestListener(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
-
-	queue := NewQueue(5, 100, 10, time.Millisecond*20)
-	sendQueue := queue.SendQueueWithAutoFlush(10 * time.Millisecond)
 	channel := make(chan interface{})
 
 	var initCalled, shutdownCalled, limitCalled, idleCalled, startBatchCalled, emptyCalled int64
 
 	listener := NewQueueListener(&QueueListener{
-		Init: func() {
+		InitFunc: func() {
 			atomic.AddInt64(&initCalled, 1)
 		},
-		Shutdown: func() {
+		ShutdownFunc: func() {
 			atomic.AddInt64(&shutdownCalled, 1)
 		},
-		Limit: func() {
+		LimitFunc: func() {
 			atomic.AddInt64(&limitCalled, 1)
 		},
-		Idle: func() {
+		IdleFunc: func() {
 			atomic.AddInt64(&idleCalled, 1)
 		},
-		StartBatch: func() {
+		StartBatchFunc: func() {
 			atomic.AddInt64(&startBatchCalled, 1)
 		},
-		Empty: func() {
+		EmptyFunc: func() {
 			atomic.AddInt64(&emptyCalled, 1)
 		},
-		Receive: func(item interface{}) {
+		ReceiveFunc: func(item interface{}) {
 			channel <- item
 		},
 	})
+
+	queue := NewActiveQueue(5, 100, 10, time.Millisecond * 20, listener)
+	sendQueue := queue.SendQueueWithAutoFlush(10 * time.Millisecond)
 
 	addItems := func() {
 		for i := 0; i < 100; i++ {
 			sendQueue.Send(strconv.Itoa(i))
 
-			if i > 70 && i%10 == 0 {
+			if i > 70 && i % 10 == 0 {
 				timer := time.NewTimer(100 * time.Millisecond)
 				<-timer.C
 			}
@@ -177,10 +177,6 @@ func TestListener(t *testing.T) {
 	}
 
 	go addItems()
-
-	logger.Info("NEW LISTENER")
-	queue.StartListener(listener)
-	logger.Info("AFTER LISTENER")
 
 	count := 0
 	for item := range channel {
@@ -206,7 +202,7 @@ func TestListener(t *testing.T) {
 
 	<-time.NewTimer(100 * time.Millisecond).C
 
-	logger.Infof("\ninitCalled %d, shutdownCalled %d, limitCalled %d, "+
+	logger.Infof("\ninitCalled %d, shutdownCalled %d, limitCalled %d, " +
 		"\nidleCalled %d, startBatchCalled %d, emptyCalled %d",
 		initCalled, shutdownCalled, limitCalled,
 		idleCalled, startBatchCalled, emptyCalled)
@@ -218,14 +214,14 @@ func TestListener(t *testing.T) {
 func TestQueueAsyncStop(t *testing.T) {
 
 	logger := tlg.NewTestSimpleLogger("test", t)
-
-	queue := NewQueue(5, 100, 10, time.Millisecond*100)
-	sendQueue := queue.SendQueue()
 	channel := make(chan interface{})
 
 	listener := NewListenerReceive(func(item interface{}) {
 		channel <- item
 	})
+
+	queue := NewActiveQueue(5, 100, 10, time.Millisecond * 100, listener)
+	sendQueue := queue.SendQueue()
 
 	addItems := func() {
 		for i := 0; i < 100; i++ {
@@ -246,8 +242,6 @@ func TestQueueAsyncStop(t *testing.T) {
 
 	go addItems()
 
-	queue.StartListener(listener)
-	queue.StartListener(listener)
 	queue.Stop()
 	queue.Stop()
 
@@ -260,7 +254,7 @@ func TestAutoFlush(t *testing.T) {
 
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, time.Millisecond*100)
+	queue := NewQueue(5, 100, 10, time.Millisecond * 100)
 	sendQueue := queue.SendQueueWithAutoFlush(time.Millisecond * 10)
 	receiveQueue := queue.ReceiveQueue()
 

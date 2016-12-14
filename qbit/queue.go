@@ -15,14 +15,30 @@ type BasicQueue struct {
 	started          int64
 }
 
-func NewQueue(batchSize int, channelSize int, limit int, pollWaitDuration time.Duration) Queue {
+func NewActiveQueue(batchSize int, channelSize int, limit int, pollWaitDuration time.Duration, listener ReceiveQueueListener) Queue {
 	channel := make(chan []interface{}, channelSize)
-	return &BasicQueue{
+	queue := &BasicQueue{
 		channel:          channel,
 		batchSize:        batchSize,
 		limit:            limit,
 		pollWaitDuration: pollWaitDuration,
 	}
+	if listener == nil {
+		listener = NewQueueListener(&QueueListener{})
+	}
+	queue.StartListener(listener)
+	return queue
+}
+
+func NewQueue(batchSize int, channelSize int, limit int, pollWaitDuration time.Duration) Queue {
+	channel := make(chan []interface{}, channelSize)
+	queue := &BasicQueue{
+		channel:          channel,
+		batchSize:        batchSize,
+		limit:            limit,
+		pollWaitDuration: pollWaitDuration,
+	}
+	return queue
 }
 
 func (bq *BasicQueue) ReceiveQueue() ReceiveQueue {

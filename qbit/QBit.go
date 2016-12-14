@@ -8,8 +8,6 @@ type Queue interface {
 	ReceiveQueue() ReceiveQueue
 	SendQueue() SendQueue
 	SendQueueWithAutoFlush(duration time.Duration) SendQueue
-	StartListener(listener ReceiveQueueListener) error
-	Started() bool
 	Stopped() bool
 	Size() int
 	Stop() error

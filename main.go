@@ -11,7 +11,7 @@ func main() {
 
 	logger := lg.NewSimpleLogger("main")
 
-	queue := q.NewQueue(10, 10, 10, "test", time.Millisecond * 100)
+	queue := q.NewActiveQueue(10, 10, 10, "test", time.Millisecond * 100)
 	sendQueue := queue.SendQueue()
 	channel := make(chan interface{}, 100)
 
