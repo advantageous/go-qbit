@@ -11,10 +11,10 @@ import (
 func TestQueueBasics(t *testing.T) {
 	logger := tlg.NewTestDebugLogger("test", t)
 
-	listener:=NewQueueListener(&QueueListener{})
-	queue := NewActiveQueue(10, 10, 10, time.Millisecond * 100, listener)
-	queueReceiver := queue.ReceiveQueue()
-	sendQueue := queue.SendQueue()
+	listener := NewQueueListener(&QueueListener{})
+	queue := NewQueueManager(10, 10, 10, time.Millisecond*100, listener)
+	queueReceiver := queue.Queue().ReceiveQueue()
+	sendQueue := queue.Queue().SendQueue()
 
 	sendQueue.Send("Hello")
 	sendQueue.Send("How")
@@ -26,7 +26,7 @@ func TestQueueBasics(t *testing.T) {
 		logger.Error("Size is wrong")
 	}
 
-	if queue.Size() != 1 {
+	if queue.Queue().Size() != 1 {
 		logger.Error("Size is wrong")
 	}
 
@@ -66,7 +66,7 @@ func TestQueueBasics(t *testing.T) {
 func TestOverBatch(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, time.Millisecond * 100)
+	queue := NewQueue(5, 100, time.Millisecond*100)
 	queueReceiver := queue.ReceiveQueue()
 	sendQueue := queue.SendQueue()
 
@@ -98,12 +98,12 @@ func TestQueueAsync(t *testing.T) {
 
 	channel := make(chan interface{})
 
-	listener := NewListenerReceive(func(item interface{}) {
+	listener := NewReceiveListener(func(item interface{}) {
 		channel <- item
 	})
 
-	queue := NewActiveQueue(5, 100, 10, time.Millisecond * 100, listener)
-	sendQueue := queue.SendQueue()
+	queue := NewQueueManager(5, 100, 10, time.Millisecond*100, listener)
+	sendQueue := queue.Queue().SendQueue()
 
 	addItems := func() {
 		for i := 0; i < 100; i++ {
@@ -161,14 +161,14 @@ func TestListener(t *testing.T) {
 		},
 	})
 
-	queue := NewActiveQueue(5, 100, 10, time.Millisecond * 20, listener)
+	queue := NewQueueManager(5, 100, 10, time.Millisecond*20, listener)
 	sendQueue := queue.SendQueueWithAutoFlush(10 * time.Millisecond)
 
 	addItems := func() {
 		for i := 0; i < 100; i++ {
 			sendQueue.Send(strconv.Itoa(i))
 
-			if i > 70 && i % 10 == 0 {
+			if i > 70 && i%10 == 0 {
 				timer := time.NewTimer(100 * time.Millisecond)
 				<-timer.C
 			}
@@ -202,7 +202,7 @@ func TestListener(t *testing.T) {
 
 	<-time.NewTimer(100 * time.Millisecond).C
 
-	logger.Infof("\ninitCalled %d, shutdownCalled %d, limitCalled %d, " +
+	logger.Infof("\ninitCalled %d, shutdownCalled %d, limitCalled %d, "+
 		"\nidleCalled %d, startBatchCalled %d, emptyCalled %d",
 		initCalled, shutdownCalled, limitCalled,
 		idleCalled, startBatchCalled, emptyCalled)
@@ -216,12 +216,12 @@ func TestQueueAsyncStop(t *testing.T) {
 	logger := tlg.NewTestSimpleLogger("test", t)
 	channel := make(chan interface{})
 
-	listener := NewListenerReceive(func(item interface{}) {
+	listener := NewReceiveListener(func(item interface{}) {
 		channel <- item
 	})
 
-	queue := NewActiveQueue(5, 100, 10, time.Millisecond * 100, listener)
-	sendQueue := queue.SendQueue()
+	queue := NewQueueManager(5, 100, 10, time.Millisecond*100, listener)
+	sendQueue := queue.Queue().SendQueue()
 
 	addItems := func() {
 		for i := 0; i < 100; i++ {
@@ -254,8 +254,8 @@ func TestAutoFlush(t *testing.T) {
 
 	logger := tlg.NewTestSimpleLogger("test", t)
 
-	queue := NewQueue(5, 100, 10, time.Millisecond * 100)
-	sendQueue := queue.SendQueueWithAutoFlush(time.Millisecond * 10)
+	queue := NewQueue(5, 100, time.Millisecond*100)
+	sendQueue := NewLockingSendQueueWithAutoFlush(queue.SendQueue(), time.Millisecond*100)
 	receiveQueue := queue.ReceiveQueue()
 
 	sendQueue.Send("Hi Mom")

@@ -7,10 +7,14 @@ import (
 type Queue interface {
 	ReceiveQueue() ReceiveQueue
 	SendQueue() SendQueue
+	Size() int
+}
+
+type QueueManager interface {
 	SendQueueWithAutoFlush(duration time.Duration) SendQueue
 	Stopped() bool
-	Size() int
 	Stop() error
+	Queue() Queue
 }
 
 type SendQueue interface {

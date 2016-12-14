@@ -2,6 +2,7 @@ package qbit
 
 import (
 	"sync"
+	"time"
 )
 
 type LockingSendQueue struct {
@@ -15,6 +16,24 @@ func NewLockingSendQueue(sendQueue SendQueue) SendQueue {
 		rw:        rw,
 		sendQueue: sendQueue,
 	}
+}
+
+func NewLockingSendQueueWithAutoFlush(sendQueue SendQueue, flushDuration time.Duration) SendQueue {
+
+	newSendQueue := NewLockingSendQueue(sendQueue)
+
+	go func() {
+		for {
+			timer := time.NewTimer(flushDuration)
+			select {
+			case <-timer.C:
+				newSendQueue.FlushSends()
+				timer.Reset(flushDuration)
+			}
+		}
+	}()
+
+	return newSendQueue
 }
 
 func (lq *LockingSendQueue) Send(item interface{}) error {

@@ -4,7 +4,7 @@ func NewListener() ReceiveQueueListener {
 	return &BaseReceiveQueueListener{}
 }
 
-func NewListenerReceive(receiveFunc func(item interface{})) ReceiveQueueListener {
+func NewReceiveListener(receiveFunc func(item interface{})) ReceiveQueueListener {
 	return NewQueueListener(&QueueListener{ReceiveFunc: receiveFunc})
 }
 
@@ -49,7 +49,7 @@ type QueueListener struct {
 	ReceiveFunc    func(item interface{})
 	EmptyFunc      func()
 	ShutdownFunc   func()
-	IdleFunc      func()
+	IdleFunc       func()
 	StartBatchFunc func()
 	LimitFunc      func()
 }

@@ -11,11 +11,11 @@ func main() {
 
 	logger := lg.NewSimpleLogger("main")
 
-	queue := q.NewActiveQueue(10, 10, 10, "test", time.Millisecond * 100)
+	queue := q.NewQueueManager(10, 10, 10, "test", time.Millisecond * 100)
 	sendQueue := queue.SendQueue()
 	channel := make(chan interface{}, 100)
 
-	listener := q.NewListenerReceive(func(item interface{}) {
+	listener := q.NewReceiveListener(func(item interface{}) {
 		channel <- item
 	})
 

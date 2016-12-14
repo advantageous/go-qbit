@@ -1,8 +1,6 @@
 package qbit
 
 import (
-	"errors"
-	"sync/atomic"
 	"time"
 )
 
@@ -10,32 +8,14 @@ type BasicQueue struct {
 	channel          chan []interface{}
 	batchSize        int
 	channelSize      int
-	limit            int
 	pollWaitDuration time.Duration
-	started          int64
 }
 
-func NewActiveQueue(batchSize int, channelSize int, limit int, pollWaitDuration time.Duration, listener ReceiveQueueListener) Queue {
+func NewQueue(batchSize int, channelSize int, pollWaitDuration time.Duration) Queue {
 	channel := make(chan []interface{}, channelSize)
 	queue := &BasicQueue{
 		channel:          channel,
 		batchSize:        batchSize,
-		limit:            limit,
-		pollWaitDuration: pollWaitDuration,
-	}
-	if listener == nil {
-		listener = NewQueueListener(&QueueListener{})
-	}
-	queue.StartListener(listener)
-	return queue
-}
-
-func NewQueue(batchSize int, channelSize int, limit int, pollWaitDuration time.Duration) Queue {
-	channel := make(chan []interface{}, channelSize)
-	queue := &BasicQueue{
-		channel:          channel,
-		batchSize:        batchSize,
-		limit:            limit,
 		pollWaitDuration: pollWaitDuration,
 	}
 	return queue
@@ -53,55 +33,9 @@ func (bq *BasicQueue) SendQueueWithAutoFlush(flushDuration time.Duration) SendQu
 
 	sendQueue := NewLockingSendQueue(bq.SendQueue())
 
-	go func() {
-		for {
-			timer := time.NewTimer(flushDuration)
-			select {
-			case <-timer.C:
-				sendQueue.FlushSends()
-				timer.Reset(flushDuration)
-			}
-
-			if bq.Stopped() {
-				break
-			}
-		}
-	}()
-
 	return sendQueue
-}
-
-func (bq *BasicQueue) StartListener(listener ReceiveQueueListener) error {
-	var err error
-
-	if bq.Started() {
-		err = errors.New("Queue already started")
-	} else if atomic.CompareAndSwapInt64(&bq.started, 0, 1) {
-		go manageQueue(bq.limit, bq, bq.ReceiveQueue(), listener)
-	}
-	return err
-}
-
-func (bq *BasicQueue) Started() bool {
-	started := atomic.LoadInt64(&bq.started)
-	return started == 1
-}
-
-func (bq *BasicQueue) Stopped() bool {
-	started := atomic.LoadInt64(&bq.started)
-	return started == 0
 }
 
 func (bq *BasicQueue) Size() int {
 	return len(bq.channel)
-}
-
-func (bq *BasicQueue) Stop() error {
-	var err error
-	if !bq.Started() {
-		err = errors.New("Cant' stop Queue, it was not started")
-	} else if atomic.CompareAndSwapInt64(&bq.started, 1, 0) {
-		err = nil
-	}
-	return err
 }
