@@ -6,6 +6,8 @@ import (
 	tlg "github.com/advantageous/go-qbit/logging/test"
 	"strconv"
 
+//	"sync/atomic"
+	"sync/atomic"
 )
 
 func TestQueueBasics(t *testing.T) {
@@ -136,6 +138,84 @@ func TestQueueAsync(t *testing.T) {
 }
 
 
+
+func TestListener(t *testing.T) {
+	logger := tlg.NewTestSimpleLogger("test", t)
+
+	queue := NewQueue(5, 100, 10, "test", time.Millisecond * 20)
+	sendQueue := queue.SendQueueWithAutoFlush(10 * time.Millisecond)
+	channel := make(chan interface{})
+
+	var initCalled, shutdownCalled, limitCalled, idleCalled, startBatchCalled, emptyCalled int64
+
+	listener := NewQueueListener(&QueueListener{
+		Init: func() { atomic.AddInt64(&initCalled, 1)},
+		Shutdown: func() { atomic.AddInt64(&shutdownCalled, 1)},
+		Limit: func() { atomic.AddInt64(&limitCalled, 1)},
+		Idle: func() { atomic.AddInt64(&idleCalled, 1)},
+		StartBatch: func() {atomic.AddInt64(&startBatchCalled, 1)},
+		Empty: func() {atomic.AddInt64(&emptyCalled, 1)},
+		Receive: func(item interface{}) {
+			channel <- item
+		},
+	})
+
+
+
+
+	addItems := func() {
+		for i := 0; i < 100; i++ {
+			sendQueue.Send(strconv.Itoa(i))
+
+			if i > 70 && i % 10 == 0 {
+				timer := time.NewTimer(100 * time.Millisecond)
+				<-timer.C
+			}
+		}
+		sendQueue.FlushSends()
+	}
+
+	go addItems()
+
+	logger.Info("NEW LISTENER")
+	queue.StartListener(listener)
+	logger.Info("AFTER LISTENER")
+
+
+	count :=0
+	for item := range channel {
+		logger.Debug(item)
+		count++
+		if count == 100  {
+			break
+		}
+	}
+
+	logger.Info("AFTER LOOP")
+
+	<-time.NewTimer(100 * time.Millisecond).C
+
+	if count != 100 {
+		logger.Error("Count should be 100")
+	}
+	if len(channel) !=  0 {
+		logger.Error("Channel should be empty", len(channel))
+	}
+
+	queue.Stop()
+
+	<-time.NewTimer(100 * time.Millisecond).C
+
+	logger.Infof("\ninitCalled %d, shutdownCalled %d, limitCalled %d, " +
+		"\nidleCalled %d, startBatchCalled %d, emptyCalled %d",
+		initCalled, shutdownCalled, limitCalled,
+		idleCalled, startBatchCalled, emptyCalled)
+
+
+	NewQueueListener(&QueueListener{})
+
+}
+
 func TestQueueAsyncStop(t *testing.T) {
 
 	logger := tlg.NewTestSimpleLogger("test", t)
@@ -174,6 +254,32 @@ func TestQueueAsyncStop(t *testing.T) {
 
 	if len(channel) >  0 {
 		logger.Error("Channel should be not empty", len(channel))
+	}
+}
+
+
+func TestAutoFlush(t *testing.T) {
+
+	logger := tlg.NewTestSimpleLogger("test", t)
+
+	queue := NewQueue(5, 100, 10, "test", time.Millisecond * 100)
+	sendQueue := queue.SendQueueWithAutoFlush(time.Millisecond * 10)
+	receiveQueue := queue.ReceiveQueue()
+
+	sendQueue.Send("Hi Mom")
+
+	item := receiveQueue.Take()
+
+	if item!="Hi Mom" {
+		logger.Error("Item is not equal to Hi Mom")
+	}
+
+	if sendQueue.Size() != 0 {
+		logger.Error("Size wrong")
+	}
+
+	if sendQueue.Name() != "test" {
+		logger.Error("Name wrong", sendQueue.Name())
 	}
 }
 

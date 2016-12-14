@@ -35,8 +35,26 @@ func (bq *BasicQueue) SendQueue() SendQueue {
 	return NewSendQueue(bq.channel, bq, bq.batchSize, nil)
 }
 
-func (bq *BasicQueue) SendQueueWithAutoFlush(batchSize int, flushDuration time.Duration) SendQueue {
-	return nil
+func (bq *BasicQueue) SendQueueWithAutoFlush(flushDuration time.Duration) SendQueue {
+
+	sendQueue := NewLockingSendQueue(bq.SendQueue())
+
+	go func() {
+		for {
+			timer := time.NewTimer(flushDuration)
+			select {
+			case <-timer.C:
+				sendQueue.FlushSends()
+				timer.Reset(flushDuration)
+			}
+
+			if bq.Stopped() {
+				break
+			}
+		}
+	}()
+
+	return sendQueue
 }
 
 func (bq *BasicQueue)  StartListener(listener ReceiveQueueListener) error {
@@ -72,7 +90,7 @@ func (bq *BasicQueue)  Stop() error {
 	var err error
 	if !bq.Started() {
 		err = errors.New("Cant' stop Queue, it was not started")
-	} else  if atomic.CompareAndSwapInt64(&bq.started, 1, 0) {
+	} else if atomic.CompareAndSwapInt64(&bq.started, 1, 0) {
 		err = nil
 	}
 	return err

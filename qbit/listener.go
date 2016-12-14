@@ -1,14 +1,54 @@
 package qbit
 
 
-func NewListener () ReceiveQueueListener {
-	return  &BaseReceiveQueueListener{}
+func NewListenerReceive (receiveFunc func(item interface{})) ReceiveQueueListener {
+	return NewQueueListener(&QueueListener{Receive:receiveFunc})
 }
 
+var EmptyFunc func() = func() {}
 
-func NewListenerReceive (receiveFunc func(item interface{})) ReceiveQueueListener {
+func NewQueueListener (queueListener *QueueListener) ReceiveQueueListener {
 
-	return &BaseReceiveQueueListener{receive:receiveFunc}
+	if queueListener.Init == nil {
+		queueListener.Init = EmptyFunc
+	}
+	if queueListener.Receive == nil {
+		queueListener.Receive = func(item interface{}) {}
+	}
+	if queueListener.Empty == nil {
+		queueListener.Empty = EmptyFunc
+	}
+	if queueListener.Shutdown == nil {
+		queueListener.Shutdown = EmptyFunc
+	}
+	if queueListener.Idle == nil {
+		queueListener.Idle = EmptyFunc
+	}
+	if queueListener.StartBatch == nil {
+		queueListener.StartBatch = EmptyFunc
+	}
+	if queueListener.Limit == nil {
+		queueListener.Limit = EmptyFunc
+	}
+	return &BaseReceiveQueueListener{
+		init:queueListener.Init,
+		receive:queueListener.Receive,
+		empty:queueListener.Empty,
+		shutdown:queueListener.Shutdown,
+		idle:queueListener.Idle,
+		startBatch:queueListener.StartBatch,
+		limit:queueListener.Limit,
+	}
+}
+
+type QueueListener struct {
+	Init func()
+	Receive func(item interface{})
+	Empty func()
+	Shutdown func()
+	Idle func()
+	StartBatch func()
+	Limit func()
 }
 
 type BaseReceiveQueueListener struct {
@@ -18,21 +58,27 @@ type BaseReceiveQueueListener struct {
 	shutdown func()
 	idle func()
 	startBatch func()
+	limit func()
 }
 
-func (*BaseReceiveQueueListener) Limit() {
+func (l *BaseReceiveQueueListener) Limit() {
+	l.limit()
 }
-func (*BaseReceiveQueueListener) Init() {
-
+func (l *BaseReceiveQueueListener) Init() {
+	l.init()
 }
 func (l *BaseReceiveQueueListener) Receive(item interface{}) {
 	l.receive(item)
 }
-func (*BaseReceiveQueueListener) Empty() {
+func (l *BaseReceiveQueueListener) Empty() {
+	l.empty()
 }
-func (*BaseReceiveQueueListener) Shutdown() {
+func (l *BaseReceiveQueueListener) Shutdown() {
+	l.shutdown()
 }
-func (*BaseReceiveQueueListener) Idle() {
+func (l *BaseReceiveQueueListener) Idle() {
+	l.idle()
 }
-func (*BaseReceiveQueueListener) StartBatch() {
+func (l *BaseReceiveQueueListener) StartBatch() {
+	l.startBatch()
 }
