@@ -1,19 +1,17 @@
 package main
 
 import (
-	"time"
-	q "github.com/advantageous/go-qbit/qbit"
 	lg "github.com/advantageous/go-qbit/logging"
+	q "github.com/advantageous/go-qbit/qbit"
 	"strconv"
+	"time"
 )
 
 func main() {
 
-
 	logger := lg.NewSimpleLogger("main")
 
-
-	queue  := q.NewQueue(10, 10, 10, "test", time.Millisecond * 100)
+	queue := q.NewQueue(10, 10, 10, "test", time.Millisecond * 100)
 	sendQueue := queue.SendQueue()
 	channel := make(chan interface{}, 100)
 
@@ -39,11 +37,11 @@ func main() {
 	queue.StartListener(listener)
 
 	drainItems := func() {
-		count :=0
+		count := 0
 		for item := range channel {
 			logger.Debug(item)
 			count++
-			if count == 100  {
+			if count == 100 {
 				break
 			}
 		}
@@ -55,6 +53,5 @@ func main() {
 	for {
 		queue.Stop()
 	}
-
 
 }

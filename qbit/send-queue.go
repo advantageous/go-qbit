@@ -2,6 +2,7 @@ package qbit
 
 import (
 	"github.com/advantageous/go-qbit/logging"
+	"errors"
 )
 
 type BasicSendQueue struct {
@@ -13,7 +14,11 @@ type BasicSendQueue struct {
 	queueLocal []interface{}
 }
 
+<<<<<<< HEAD
 func NewSendQueue(channel chan []interface{}, owner Queue, batchSize int, logger logging.Logger) SendQueue {
+=======
+func NewSendQueue(channel chan []interface{}, owner Queue, batchSize  int, logger logging.Logger) SendQueue {
+>>>>>>> master
 
 	if logger == nil {
 		logger = logging.GetSimpleLogger("QBIT_SIMPLE_QUEUE", "sender")
@@ -30,19 +35,31 @@ func NewSendQueue(channel chan []interface{}, owner Queue, batchSize int, logger
 	}
 }
 
-func (bsq *BasicSendQueue) Send(item interface{}) (bool, error) {
+func (bsq *BasicSendQueue) Send(item interface{}) error {
 
-	ableToSend := bsq.flushIfOverBatch()
+	err := bsq.flushIfOverBatch()
+	if err != nil {
+		return err
+	}
 	bsq.queueLocal[bsq.index] = item
 	bsq.index++
+<<<<<<< HEAD
 	return ableToSend, nil
+=======
+	return err
+>>>>>>> master
 }
 
-func (bsq *BasicSendQueue) flushIfOverBatch() bool {
-	return bsq.index < bsq.batchSize || bsq.sendLocalQueue()
+func (bsq *BasicSendQueue) flushIfOverBatch() error {
+	if ( bsq.index < bsq.batchSize ) {
+		return nil
+	} else {
+		return bsq.sendLocalQueue()
+	}
 }
 
-func (bsq *BasicSendQueue) sendLocalQueue() bool {
+func (bsq *BasicSendQueue) sendLocalQueue() error {
+	var err error
 	if bsq.index > 0 {
 		slice := make([]interface{}, bsq.index)
 		copy(slice, bsq.queueLocal)
@@ -50,21 +67,23 @@ func (bsq *BasicSendQueue) sendLocalQueue() bool {
 		select {
 		case bsq.channel <- slice:
 			bsq.index = 0
-			for i := 0; i < len(bsq.queueLocal); i++ {
-				bsq.queueLocal[i] = nil
-			}
-			return true
+		//for i := 0; i < len(bsq.queueLocal); i++ {
+		//	bsq.queueLocal[i] = nil
+		//}
 		default:
-			return false
+			err = errors.New("Unable to send")
 		}
+<<<<<<< HEAD
 	} else {
 		return true
+=======
+>>>>>>> master
 	}
+	return err
 }
 
 func (bsq *BasicSendQueue) FlushSends() error {
-	bsq.sendLocalQueue()
-	return nil
+	return bsq.sendLocalQueue()
 }
 
 func (bsq *BasicSendQueue) Size() int {
