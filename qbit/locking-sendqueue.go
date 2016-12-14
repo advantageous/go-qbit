@@ -11,9 +11,8 @@ type LockingSendQueue struct {
 }
 
 func NewLockingSendQueue(sendQueue SendQueue) SendQueue {
-	rw := sync.RWMutex{}
 	return &LockingSendQueue{
-		rw:        rw,
+		rw:        sync.RWMutex{},
 		sendQueue: sendQueue,
 	}
 }

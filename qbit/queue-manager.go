@@ -12,7 +12,7 @@ type BasicQueueManager struct {
 	limit   int
 }
 
-func NewQueueManager(batchSize int, channelSize int, limit int, pollWaitDuration time.Duration, listener ReceiveQueueListener) QueueManager {
+func NewQueueManager(channelSize int, batchSize int, limit int, pollWaitDuration time.Duration, listener ReceiveQueueListener) QueueManager {
 	channel := make(chan []interface{}, channelSize)
 	queue := &BasicQueue{
 		channel:          channel,
