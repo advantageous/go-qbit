@@ -19,14 +19,14 @@ func NewSendQueue(channel chan []interface{}, owner Queue, batchSize int, logger
 		logger = logging.GetSimpleLogger("QBIT_SIMPLE_QUEUE", "sender")
 	}
 
-	queueLocal := make([]interface{}, batchSize)
+	buffer := makeBuffer(batchSize)
 
 	return &BasicSendQueue{
 		channel:   channel,
 		owner:     owner,
 		batchSize: batchSize,
 		logger:    logger,
-		buffer:    queueLocal,
+		buffer:    buffer,
 	}
 }
 
@@ -52,7 +52,7 @@ func (bsq *BasicSendQueue) sendLocalQueue() error {
 	if bsq.index > 0 {
 		bsq.channel <- bsq.buffer[0:bsq.index]
 		bsq.index = 0
-		bsq.buffer = make([]interface{}, bsq.batchSize)
+		bsq.buffer = makeBuffer(bsq.batchSize)
 	}
 	return nil
 }

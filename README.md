@@ -35,3 +35,29 @@ Golang channel with a single reader and a single writer was able to send
 9,525,623 messages a second. 
 
 
+#### Improvement 
+
+Use pooling. Created simpler queue manager. 
+
+#### Queue Pooling off (2 seconds faster than before with simpler queue manager)
+```
+heap 2,437,776 	 GC count 4,531
+1	12666113306 ns/op
+PASS
+ok  	github.com/advantageous/go-qbit/qbit	12.676s
+```
+
+
+#### Queue Pooling on (3 seconds faster than before with simpler queue manager)
+```
+heap 2,505,232 	 GC count 3
+1	10912673726 ns/op
+PASS
+ok  	github.com/advantageous/go-qbit/qbit	10.924s
+```
+
+GC collections went from 4,531 to 3. 
+
+![perf](/images/perf.png)
+
+

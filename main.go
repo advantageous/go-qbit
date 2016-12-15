@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/advantageous/go-logback/logging"
 )
+
 func main() {
 
 	buffer := make([]interface{}, 3)
