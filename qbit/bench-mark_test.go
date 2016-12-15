@@ -23,7 +23,7 @@ func BenchmarkQueue(b *testing.B) {
 	}
 
 
-	queueManager := NewQueueManager(100, 10000, 10000, 10*time.Millisecond, NewReceiveListener(func(interface{}) {
+	queueManager := NewQueueManager(100, 10000,  10*time.Millisecond, NewReceiveListener(func(interface{}) {
 		atomic.AddInt32(&counter, 1)
 
 	}))

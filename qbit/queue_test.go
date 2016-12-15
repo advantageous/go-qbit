@@ -12,7 +12,7 @@ func TestQueueBasics(t *testing.T) {
 	logger := tlg.NewTestDebugLogger("test", t)
 
 	listener := NewQueueListener(&QueueListener{})
-	queue := NewQueueManager(10, 10, 10, time.Millisecond*100, listener)
+	queue := NewQueueManager(10, 10, time.Millisecond*100, listener)
 	queueReceiver := queue.Queue().ReceiveQueue()
 	sendQueue := queue.Queue().SendQueue()
 
@@ -102,7 +102,7 @@ func TestQueueAsync(t *testing.T) {
 		channel <- item
 	})
 
-	queue := NewQueueManager(5, 100, 10, time.Millisecond*100, listener)
+	queue := NewQueueManager(5, 100, time.Millisecond*100, listener)
 	sendQueue := queue.Queue().SendQueue()
 
 	addItems := func() {
@@ -161,7 +161,7 @@ func TestListener(t *testing.T) {
 		},
 	})
 
-	queue := NewQueueManager(5, 100, 10, time.Millisecond*20, listener)
+	queue := NewQueueManager(5, 100, time.Millisecond*20, listener)
 	sendQueue := queue.SendQueueWithAutoFlush(10 * time.Millisecond)
 
 	addItems := func() {
@@ -220,7 +220,7 @@ func TestQueueAsyncStop(t *testing.T) {
 		channel <- item
 	})
 
-	queue := NewQueueManager(5, 100, 10, time.Millisecond*100, listener)
+	queue := NewQueueManager(5, 100,  time.Millisecond*100, listener)
 	sendQueue := queue.Queue().SendQueue()
 
 	addItems := func() {

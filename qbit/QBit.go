@@ -37,7 +37,7 @@ type ReceiveQueueListener interface {
 	Init()
 	Receive(item interface{})
 	Empty()
-	Limit()
+	EndBatch()
 	Shutdown()
 	Idle()
 	StartBatch()

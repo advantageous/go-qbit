@@ -64,7 +64,7 @@ type BaseReceiveQueueListener struct {
 	limit      func()
 }
 
-func (l *BaseReceiveQueueListener) Limit() {
+func (l *BaseReceiveQueueListener) EndBatch() {
 	l.limit()
 }
 func (l *BaseReceiveQueueListener) Init() {

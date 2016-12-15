@@ -9,10 +9,10 @@ import (
 type BasicQueueManager struct {
 	queue   Queue
 	started int64
-	limit   int
+	batchSize   int
 }
 
-func NewQueueManager(channelSize int, batchSize int, limit int, pollWaitDuration time.Duration, listener ReceiveQueueListener) QueueManager {
+func NewQueueManager(channelSize int, batchSize int, pollWaitDuration time.Duration, listener ReceiveQueueListener) QueueManager {
 	channel := make(chan []interface{}, channelSize)
 	queue := &BasicQueue{
 		channel:          channel,
@@ -22,7 +22,7 @@ func NewQueueManager(channelSize int, batchSize int, limit int, pollWaitDuration
 
 	queueManager := &BasicQueueManager{
 		queue: queue,
-		limit: limit,
+		batchSize: batchSize,
 	}
 
 	if listener == nil {
@@ -38,7 +38,7 @@ func (bqm *BasicQueueManager) startListener(listener ReceiveQueueListener) error
 	if bqm.Started() {
 		err = errors.New("Queue already started")
 	} else if atomic.CompareAndSwapInt64(&bqm.started, 0, 1) {
-		go manageQueue(bqm.limit, bqm, bqm.queue.ReceiveQueue(), listener)
+		go manageQueue(bqm.batchSize, bqm, bqm.queue.ReceiveQueue(), listener)
 	}
 	return err
 }
@@ -108,7 +108,7 @@ OuterLoop:
 			listener.Receive(item)
 			/* If the receive count has hit the max then we need to call limit. */
 			if count >= limit {
-				listener.Limit()
+				listener.EndBatch()
 				count = 0
 				if queueManager.Stopped() {
 					listener.Shutdown()
