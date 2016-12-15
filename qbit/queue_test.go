@@ -144,7 +144,7 @@ func TestListener(t *testing.T) {
 		ShutdownFunc: func() {
 			atomic.AddInt64(&shutdownCalled, 1)
 		},
-		LimitFunc: func() {
+		EndBatchFunc: func() {
 			atomic.AddInt64(&limitCalled, 1)
 		},
 		IdleFunc: func() {
