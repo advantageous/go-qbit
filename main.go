@@ -1,17 +1,30 @@
 package main
 
-//
-//import (
-//	lg "github.com/advantageous/go-qbit/logging"
-//	q "github.com/advantageous/go-qbit/qbit"
-//	"strconv"
-//	"time"
-//)
+import "fmt"
 
 func main() {
 
-	//logger := lg.NewSimpleLogger("main")
-	//
-	//queueManager := q.NewQueueManager(10, 10, 10, "test", time.Millisecond * 100)
+
+
+	buffer := make([]interface{}, 3)
+	buffer [0] = "a"
+	buffer [1] = "b"
+	buffer [2] = "c"
+
+
+	bufferCopy1 := buffer[1:]
+	bufferCopy1[0] = "B"
+	fmt.Printf("BUFFER CONTENTS %v\n", buffer)
+
+	ch := make(chan interface{})
+
+	go func() {
+		ch <- buffer[1:]
+	}()
+
+	val := <-ch
+	bufferCopy2 :=val.([]interface{})
+	bufferCopy2[0] = "BEE"
+	fmt.Printf("BUFFER CONTENTS %v\n", buffer)
 
 }

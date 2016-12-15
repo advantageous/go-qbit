@@ -52,6 +52,7 @@ func (bsq *BasicSendQueue) sendLocalQueue() error {
 	if bsq.index > 0 {
 		bsq.channel <- bsq.buffer[0:bsq.index]
 		bsq.index = 0
+		bsq.buffer = make([]interface{}, bsq.batchSize)
 	}
 	return nil
 }
