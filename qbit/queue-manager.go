@@ -7,19 +7,13 @@ import (
 )
 
 type BasicQueueManager struct {
-	queue   Queue
+	queue   *BasicQueue
 	started int64
 	limit   int
 }
 
 func NewQueueManager(channelSize int, batchSize int, limit int, pollWaitDuration time.Duration, listener ReceiveQueueListener) QueueManager {
-	channel := make(chan []interface{}, channelSize)
-	queue := &BasicQueue{
-		channel:          channel,
-		batchSize:        batchSize,
-		pollWaitDuration: pollWaitDuration,
-	}
-
+	queue := NewQueue(batchSize, channelSize, pollWaitDuration)
 	queueManager := &BasicQueueManager{
 		queue: queue,
 		limit: limit,
@@ -38,7 +32,8 @@ func (bqm *BasicQueueManager) startListener(listener ReceiveQueueListener) error
 	if bqm.Started() {
 		err = errors.New("Queue already started")
 	} else if atomic.CompareAndSwapInt64(&bqm.started, 0, 1) {
-		go manageQueue(bqm.limit, bqm, bqm.queue.ReceiveQueue(), listener)
+
+		go manageQueue2(bqm.limit, bqm, bqm.queue.ReceiveQueue(), listener, bqm.queue.recycleChannel)
 	}
 	return err
 }
@@ -95,7 +90,8 @@ func manageQueue(limit int, queueManager QueueManager, inputQueue ReceiveQueue, 
 	count := 0
 	item = inputQueue.Poll() //Initialize things.
 
-OuterLoop:
+
+	OuterLoop:
 	for {
 		if item != nil {
 			listener.StartBatch()
@@ -136,6 +132,46 @@ OuterLoop:
 			or timed tasks.
 			*/
 			listener.Idle()
+		}
+	}
+}
+
+func manageQueue2(limit int, queueManager QueueManager, inputQueue ReceiveQueue,
+listener ReceiveQueueListener, recycleChannel chan *ChannelBuffer) {
+	listener.Init()
+	var items *ChannelBuffer
+	count := 0
+
+	items = inputQueue.ReadBatch()
+
+	OuterLoop:
+	for {
+
+		if items != nil {
+			listener.StartBatch()
+			for i := 0; i < items.Index; i ++ {
+				count++
+				item := items.Buffer[i]
+				listener.Receive(item)
+				if count > limit {
+					count = 0
+					listener.Limit()
+				}
+			}
+			listener.Limit()
+			recycleChannel <- items
+			items = inputQueue.ReadBatch()
+			continue OuterLoop
+		} else {
+			items = inputQueue.ReadBatchWait()
+			if items == nil {
+				listener.Empty()
+				if queueManager.Stopped() {
+					listener.Shutdown()
+					break OuterLoop
+				}
+
+			}
 		}
 	}
 }

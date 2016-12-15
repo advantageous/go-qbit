@@ -9,7 +9,7 @@ import (
 
 func BenchmarkChannel(b *testing.B) {
 
-	const total = 1E8 // 100,000,000
+	const total = 10E7 // 100,000,000
 
 	channel := make(chan string, 1000)
 	counter := int32(0)

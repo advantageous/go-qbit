@@ -9,11 +9,11 @@ import (
 
 func BenchmarkQueue(b *testing.B) {
 
-	const total = 1E8
+	const total = 10E7
 
 	counter := int32(0)
 
-	queueManager := NewQueueManager(10, 10000, 10000, 10*time.Millisecond, NewReceiveListener(func(interface{}) {
+	queueManager := NewQueueManager(10, 10, 10, 10*time.Millisecond, NewReceiveListener(func(interface{}) {
 		atomic.AddInt32(&counter, 1)
 
 	}))

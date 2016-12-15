@@ -52,11 +52,11 @@ func TestQueueBasics(t *testing.T) {
 
 	items := queueReceiver.ReadBatch()
 
-	if len(items) <= 0 {
-		logger.Error("Items wrong length", len(items))
+	if len(items.Buffer) <= 0 {
+		logger.Error("Items wrong length", len(items.Buffer))
 	}
 
-	item = items[0].(string)
+	item = items.Buffer[0].(string)
 
 	if item != "You" {
 		logger.Error("Item not You", item)

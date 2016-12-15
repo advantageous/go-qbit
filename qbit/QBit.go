@@ -27,9 +27,9 @@ type ReceiveQueue interface {
 	PollWait() interface{}
 	Poll() interface{}
 	Take() interface{}
-	TakeBatch() []interface{}
-	ReadBatch() []interface{}
-	ReadBatchWait() []interface{}
+	TakeBatch()  *ChannelBuffer
+	ReadBatch() *ChannelBuffer
+	ReadBatchWait()  *ChannelBuffer
 	Size() int
 }
 
@@ -41,4 +41,9 @@ type ReceiveQueueListener interface {
 	Shutdown()
 	Idle()
 	StartBatch()
+}
+
+type ChannelBuffer struct {
+	Buffer []interface{}
+	Index  int
 }

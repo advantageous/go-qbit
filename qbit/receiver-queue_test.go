@@ -10,12 +10,12 @@ import (
 func TestBasics(t *testing.T) {
 	logger := tlg.NewTestDebugLogger("test", t)
 
-	channel := make(chan []interface{}, 10)
+	channel := make(chan *ChannelBuffer, 10)
 
-	queueReceiver := NewBasicReceiveQueue(time.Millisecond*10, channel)
+	queueReceiver := NewBasicReceiveQueue(time.Millisecond * 10, channel)
 
-	channel <- []interface{}{"Hello"}
-	channel <- []interface{}{"How", "Are", "You"}
+	channel <- &ChannelBuffer{[]interface{}{"Hello"}, 1}
+	channel <- &ChannelBuffer{[]interface{}{"How", "Are", "You"}, 3}
 
 	var item string
 	var ok bool
@@ -39,11 +39,8 @@ func TestBasics(t *testing.T) {
 
 	items := queueReceiver.ReadBatch()
 
-	if len(items) <= 0 {
-		logger.Error("Items wrong length", len(items))
-	}
 
-	item = items[0].(string)
+	item = items.Buffer[0].(string)
 
 	if item != "You" {
 		logger.Error("Item not You", item)
@@ -52,23 +49,23 @@ func TestBasics(t *testing.T) {
 
 func setupSinglePoll(t *testing.T) (ReceiveQueue, lg.Logger) {
 	logger := tlg.NewTestDebugLogger("test", t)
-	channel := make(chan []interface{}, 10)
-	queueReceiver := NewBasicReceiveQueue(time.Millisecond*10, channel)
+	channel := make(chan *ChannelBuffer, 10)
+	queueReceiver := NewBasicReceiveQueue(time.Millisecond * 10, channel)
 
-	channel <- []interface{}{"0a", "0b", "0c"}
-	channel <- []interface{}{"1a", "1b", "1c"}
-	channel <- []interface{}{"2a", "2b", "2c"}
+	channel <- &ChannelBuffer{[]interface{}{"0a", "0b", "0c"}, 3}
+	channel <- &ChannelBuffer{[]interface{}{"1a", "1b", "1c"}, 3}
+	channel <- &ChannelBuffer{[]interface{}{"2a", "2b", "2c"}, 3}
 	return queueReceiver, logger
 }
 
 func setup(t *testing.T) (ReceiveQueue, lg.Logger) {
 	logger := tlg.NewTestDebugLogger("test", t)
 
-	channel := make(chan []interface{}, 10)
+	channel := make(chan *ChannelBuffer, 10)
 
-	queueReceiver := NewBasicReceiveQueue(time.Millisecond*10, channel)
+	queueReceiver := NewBasicReceiveQueue(time.Millisecond * 10, channel)
 
-	channel <- []interface{}{"How", "Are", "You"}
+	channel <- &ChannelBuffer{[]interface{}{"How", "Are", "You"}, 3}
 	return queueReceiver, logger
 
 }
@@ -93,8 +90,8 @@ func TestPollWait(t *testing.T) {
 
 func TestEmpty(t *testing.T) {
 	logger := tlg.NewTestDebugLogger("test", t)
-	channel := make(chan []interface{}, 10)
-	queueReceiver := NewBasicReceiveQueue(time.Millisecond*500, channel)
+	channel := make(chan *ChannelBuffer, 10)
+	queueReceiver := NewBasicReceiveQueue(time.Millisecond * 500, channel)
 
 	item := queueReceiver.PollWait()
 
@@ -182,14 +179,14 @@ func TestTakeBatchPartBatc(t *testing.T) {
 	testReadBatchWholePart(readBatch, logger)
 }
 
-func testReadBatchWhole(readBatch func() []interface{}, logger lg.Logger) {
+func testReadBatchWhole(readBatch func() *ChannelBuffer, logger lg.Logger) {
 	items := readBatch()
 
-	if len(items) != 3 {
-		logger.Error("Items wrong length", len(items))
+	if len(items.Buffer) != 3 {
+		logger.Error("Items wrong length", len(items.Buffer))
 	}
 
-	item := items[0].(string)
+	item := items.Buffer[0].(string)
 
 	if item != "How" {
 		logger.Error("Item not How", item)
@@ -197,14 +194,14 @@ func testReadBatchWhole(readBatch func() []interface{}, logger lg.Logger) {
 
 }
 
-func testReadBatchWholePart(readBatch func() []interface{}, logger lg.Logger) {
+func testReadBatchWholePart(readBatch func() *ChannelBuffer, logger lg.Logger) {
 	items := readBatch()
 
-	if len(items) != 2 {
-		logger.Error("Items wrong length", len(items))
+	if len(items.Buffer) != 2 {
+		logger.Error("Items wrong length", len(items.Buffer))
 	}
 
-	item := items[0].(string)
+	item := items.Buffer[0].(string)
 
 	if item != "Are" {
 		logger.Error("Item not Are", item)
