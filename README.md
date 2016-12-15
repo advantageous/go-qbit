@@ -1,5 +1,5 @@
 # go-qbit
-GoLang QBit, just the queue
+GoLang QBit, just the queue!
 
 Reduces thread synchronization and locking by sending messages in batches. 
 Implements auto-flushing of batches. 
@@ -19,6 +19,9 @@ ok  	github.com/advantageous/go-qbit/qbit	13.992s
 
 ```
 
+QBit with a single reader and a single writer was able to send 
+71,469,411 messages a second. 
+
 #### Go Channel 
 ```sh
 go test -v github.com/advantageous/go-qbit/qbit -bench ^BenchmarkChannel$ -run ^$
@@ -27,5 +30,8 @@ PASS
 ok  	github.com/advantageous/go-qbit/qbit	104.980s
 
 ```
+
+Golang channel with a single reader and a single writer was able to send 
+9,525,623 messages a second. 
 
 
