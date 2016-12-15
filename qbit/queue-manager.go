@@ -117,14 +117,14 @@ OuterLoop:
 			items = inputQueue.ReadBatch()
 			continue OuterLoop
 		} else {
+			listener.Empty()
 			items = inputQueue.ReadBatchWait()
 			if items == nil {
-				listener.Empty()
+				listener.Idle()
 				if queueManager.Stopped() {
 					listener.Shutdown()
 					break OuterLoop
 				}
-
 			}
 		}
 	}
