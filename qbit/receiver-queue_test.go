@@ -1,8 +1,8 @@
 package qbit
 
 import (
-	lg "github.com/advantageous/go-qbit/logging"
-	tlg "github.com/advantageous/go-qbit/logging/test"
+	lg "github.com/advantageous/go-logback/logging"
+	tlg "github.com/advantageous/go-logback/logging/test"
 	"testing"
 	"time"
 )

@@ -1,7 +1,7 @@
 package qbit
 
 import (
-	"github.com/advantageous/go-qbit/logging"
+	"github.com/advantageous/go-logback/logging"
 )
 
 type BasicSendQueue struct {

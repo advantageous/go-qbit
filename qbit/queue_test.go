@@ -1,7 +1,7 @@
 package qbit
 
 import (
-	tlg "github.com/advantageous/go-qbit/logging/test"
+	tlg "github.com/advantageous/go-logback/logging/test"
 	"strconv"
 	"sync/atomic"
 	"testing"

@@ -1,13 +1,17 @@
 package main
 
-import "fmt"
-
+import (
+	"fmt"
+	"github.com/advantageous/go-logback/logging"
+)
 func main() {
 
 	buffer := make([]interface{}, 3)
 	buffer[0] = "a"
 	buffer[1] = "b"
 	buffer[2] = "c"
+
+	logging.NewSimpleLogger("foo")
 
 	bufferCopy1 := buffer[1:]
 	bufferCopy1[0] = "B"
