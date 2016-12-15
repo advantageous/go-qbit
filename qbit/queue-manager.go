@@ -32,6 +32,11 @@ func NewQueueManager(channelSize int, batchSize int, pollWaitDuration time.Durat
 	return queueManager
 }
 
+
+func NewSimpleQueueManager(listener ReceiveQueueListener) QueueManager {
+	return NewQueueManager(0, 10000, time.Millisecond * 10, listener)
+}
+
 func (bqm *BasicQueueManager) startListener(listener ReceiveQueueListener) error {
 	var err error
 
