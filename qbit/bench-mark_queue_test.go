@@ -8,7 +8,7 @@ import (
 
 func BenchmarkQueue(b *testing.B) {
 
-	const total = 1E8
+	const total = 1E9
 
 	counter := int32(0)
 

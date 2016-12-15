@@ -8,8 +8,7 @@ import (
 
 func BenchmarkChannel(b *testing.B) {
 
-	const total = 1E8 // 100,000,000
-
+	const total = 1E9
 	type Send struct {
 		name string
 	}
