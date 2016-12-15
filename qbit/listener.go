@@ -30,8 +30,8 @@ func NewQueueListener(queueListener *QueueListener) ReceiveQueueListener {
 	if queueListener.StartBatchFunc == nil {
 		queueListener.StartBatchFunc = EmptyFunc
 	}
-	if queueListener.LimitFunc == nil {
-		queueListener.LimitFunc = EmptyFunc
+	if queueListener.EndBatchFunc == nil {
+		queueListener.EndBatchFunc = EmptyFunc
 	}
 	return &BaseReceiveQueueListener{
 		init:       queueListener.InitFunc,
@@ -40,7 +40,7 @@ func NewQueueListener(queueListener *QueueListener) ReceiveQueueListener {
 		shutdown:   queueListener.ShutdownFunc,
 		idle:       queueListener.IdleFunc,
 		startBatch: queueListener.StartBatchFunc,
-		limit:      queueListener.LimitFunc,
+		limit:      queueListener.EndBatchFunc,
 	}
 }
 
@@ -51,7 +51,7 @@ type QueueListener struct {
 	ShutdownFunc   func()
 	IdleFunc       func()
 	StartBatchFunc func()
-	LimitFunc      func()
+	EndBatchFunc      func()
 }
 
 type BaseReceiveQueueListener struct {
