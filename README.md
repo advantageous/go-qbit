@@ -7,7 +7,7 @@ Implements auto-flushing of batches.
 
 QBit queue is over 7.2 to 7.5 times faster than golang's internal channel.
 You also get notification via callbacks when the queue is empty, a new batch started,
-or a new batch ended. 
+or a new batch ended (and more).
 
 
 #### QBit queue

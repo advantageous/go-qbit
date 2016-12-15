@@ -4,13 +4,10 @@ import "fmt"
 
 func main() {
 
-
-
 	buffer := make([]interface{}, 3)
-	buffer [0] = "a"
-	buffer [1] = "b"
-	buffer [2] = "c"
-
+	buffer[0] = "a"
+	buffer[1] = "b"
+	buffer[2] = "c"
 
 	bufferCopy1 := buffer[1:]
 	bufferCopy1[0] = "B"
@@ -23,7 +20,7 @@ func main() {
 	}()
 
 	val := <-ch
-	bufferCopy2 :=val.([]interface{})
+	bufferCopy2 := val.([]interface{})
 	bufferCopy2[0] = "BEE"
 	fmt.Printf("BUFFER CONTENTS %v\n", buffer)
 
