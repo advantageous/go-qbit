@@ -22,11 +22,11 @@ func NewSendQueue(channel chan []interface{}, owner Queue, batchSize int, logger
 	queueLocal := make([]interface{}, batchSize)
 
 	return &BasicSendQueue{
-		channel:    channel,
-		owner:      owner,
-		batchSize:  batchSize,
-		logger:     logger,
-		buffer: queueLocal,
+		channel:   channel,
+		owner:     owner,
+		batchSize: batchSize,
+		logger:    logger,
+		buffer:    queueLocal,
 	}
 }
 

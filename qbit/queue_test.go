@@ -220,7 +220,7 @@ func TestQueueAsyncStop(t *testing.T) {
 		channel <- item
 	})
 
-	queue := NewQueueManager(5, 100,  time.Millisecond*100, listener)
+	queue := NewQueueManager(5, 100, time.Millisecond*100, listener)
 	sendQueue := queue.Queue().SendQueue()
 
 	addItems := func() {

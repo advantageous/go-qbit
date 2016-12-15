@@ -7,9 +7,9 @@ import (
 )
 
 type BasicQueueManager struct {
-	queue   Queue
-	started int64
-	batchSize   int
+	queue     Queue
+	started   int64
+	batchSize int
 }
 
 func NewQueueManager(channelSize int, batchSize int, pollWaitDuration time.Duration, listener ReceiveQueueListener) QueueManager {
@@ -21,7 +21,7 @@ func NewQueueManager(channelSize int, batchSize int, pollWaitDuration time.Durat
 	}
 
 	queueManager := &BasicQueueManager{
-		queue: queue,
+		queue:     queue,
 		batchSize: batchSize,
 	}
 
@@ -32,9 +32,8 @@ func NewQueueManager(channelSize int, batchSize int, pollWaitDuration time.Durat
 	return queueManager
 }
 
-
 func NewSimpleQueueManager(listener ReceiveQueueListener) QueueManager {
-	return NewQueueManager(0, 10000, time.Millisecond * 10, listener)
+	return NewQueueManager(0, 10000, time.Millisecond*10, listener)
 }
 
 func (bqm *BasicQueueManager) startListener(listener ReceiveQueueListener) error {

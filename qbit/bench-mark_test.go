@@ -22,7 +22,6 @@ func BenchmarkQueue(b *testing.B) {
 		name: "Foo",
 	}
 
-
 	queueManager := NewSimpleQueueManager(NewReceiveListener(func(interface{}) {
 		atomic.AddInt32(&counter, 1)
 

@@ -22,7 +22,7 @@ func NewQueue(batchSize int, channelSize int, pollWaitDuration time.Duration) Qu
 }
 
 func NewSimpleQueue() Queue {
-	return NewQueue(10000, 0, time.Millisecond * 10)
+	return NewQueue(10000, 0, time.Millisecond*10)
 }
 
 func (bq *BasicQueue) ReceiveQueue() ReceiveQueue {

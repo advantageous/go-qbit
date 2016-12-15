@@ -1,9 +1,9 @@
 package qbit
 
 import (
+	"sync/atomic"
 	"testing"
 	"time"
-	"sync/atomic"
 )
 
 func BenchmarkChannel(b *testing.B) {
@@ -46,6 +46,5 @@ func BenchmarkChannel(b *testing.B) {
 			break
 		}
 	}
-
 
 }
