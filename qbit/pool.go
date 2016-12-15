@@ -5,7 +5,7 @@ import "sync"
 var pools map[int]*sync.Pool = make(map[int]*sync.Pool)
 var rw = sync.RWMutex{}
 
-const poolOn = false
+const poolOn = true
 
 func readPool(batchSize int) (*sync.Pool, bool) {
 	pool, ok := pools[batchSize]
