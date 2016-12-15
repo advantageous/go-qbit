@@ -9,12 +9,17 @@ type BasicReceiveQueue struct {
 	lastQueueIndex int
 }
 
-func NewBasicReceiveQueue(waitDuration time.Duration, channel chan []interface{}) ReceiveQueue {
+func NewReceiveQueue(waitDuration time.Duration, channel chan []interface{}) ReceiveQueue {
 
 	return &BasicReceiveQueue{
 		waitDuration: waitDuration,
 		channel:      channel,
 	}
+}
+
+func NewSimpleReceiveQueue(channel chan []interface{}) ReceiveQueue {
+
+	return NewReceiveQueue(time.Millisecond*10, channel)
 }
 
 func (brq *BasicReceiveQueue) PollWait() interface{} {

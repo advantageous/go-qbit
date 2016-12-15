@@ -26,7 +26,7 @@ func NewSimpleQueue() Queue {
 }
 
 func (bq *BasicQueue) ReceiveQueue() ReceiveQueue {
-	return NewBasicReceiveQueue(bq.pollWaitDuration, bq.channel)
+	return NewReceiveQueue(bq.pollWaitDuration, bq.channel)
 }
 
 func (bq *BasicQueue) SendQueue() SendQueue {
