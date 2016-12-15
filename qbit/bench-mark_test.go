@@ -1,7 +1,6 @@
 package qbit
 
 import (
-	"strconv"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -23,7 +22,7 @@ func BenchmarkQueue(b *testing.B) {
 
 	go func() {
 		for i := 0; i < total; i++ {
-			sendQueue.Send(strconv.Itoa(i))
+			sendQueue.Send(i)
 		}
 		sendQueue.FlushSends()
 		<-time.NewTimer(100 * time.Millisecond).C

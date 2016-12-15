@@ -1,7 +1,6 @@
 package qbit
 
 import (
-	"strconv"
 	"testing"
 	"time"
 	"sync/atomic"
@@ -11,24 +10,21 @@ func BenchmarkChannel(b *testing.B) {
 
 	const total = 1E8 // 100,000,000
 
-	channel := make(chan string, 1000)
+	channel := make(chan int, 1000)
 	counter := int32(0)
 
 	b.ResetTimer()
 
 	go func() {
 		for i := 0; i < total; i++ {
-			channel <- strconv.Itoa(i)
+			channel <- i
 		}
 
 	}()
 
 	go func() {
 		for {
-			item := <-channel
-			if item == "" {
-				break
-			}
+			<-channel
 			atomic.AddInt32(&counter, 1)
 		}
 	}()
