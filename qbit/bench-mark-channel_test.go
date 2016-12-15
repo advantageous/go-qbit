@@ -10,14 +10,24 @@ func BenchmarkChannel(b *testing.B) {
 
 	const total = 1E8 // 100,000,000
 
-	channel := make(chan int, 1000)
+	type Send struct {
+		name string
+	}
+
+	var testItem *Send
+
+	testItem = &Send{
+		name: "Foo",
+	}
+
+	channel := make(chan *Send, 1000)
 	counter := int32(0)
 
 	b.ResetTimer()
 
 	go func() {
 		for i := 0; i < total; i++ {
-			channel <- i
+			channel <- testItem
 		}
 
 	}()

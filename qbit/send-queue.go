@@ -5,12 +5,12 @@ import (
 )
 
 type BasicSendQueue struct {
-	channel    chan []interface{}
-	owner      Queue
-	batchSize  int
-	logger     logging.Logger
-	index      int
-	queueLocal []interface{}
+	channel   chan []interface{}
+	owner     Queue
+	batchSize int
+	logger    logging.Logger
+	index     int
+	buffer    []interface{}
 }
 
 func NewSendQueue(channel chan []interface{}, owner Queue, batchSize int, logger logging.Logger) SendQueue {
@@ -26,7 +26,7 @@ func NewSendQueue(channel chan []interface{}, owner Queue, batchSize int, logger
 		owner:      owner,
 		batchSize:  batchSize,
 		logger:     logger,
-		queueLocal: queueLocal,
+		buffer: queueLocal,
 	}
 }
 
@@ -35,7 +35,7 @@ func (bsq *BasicSendQueue) Send(item interface{}) error {
 	if err != nil {
 		return err
 	}
-	bsq.queueLocal[bsq.index] = item
+	bsq.buffer[bsq.index] = item
 	bsq.index++
 	return err
 }
@@ -50,9 +50,8 @@ func (bsq *BasicSendQueue) flushIfOverBatch() error {
 
 func (bsq *BasicSendQueue) sendLocalQueue() error {
 	if bsq.index > 0 {
-		bsq.channel <- bsq.queueLocal[0:bsq.index]
+		bsq.channel <- bsq.buffer[0:bsq.index]
 		bsq.index = 0
-		bsq.queueLocal = make([]interface{}, bsq.batchSize)
 	}
 	return nil
 }

@@ -12,7 +12,18 @@ func BenchmarkQueue(b *testing.B) {
 
 	counter := int32(0)
 
-	queueManager := NewQueueManager(10, 10000, 10000, 10*time.Millisecond, NewReceiveListener(func(interface{}) {
+	type Send struct {
+		name string
+	}
+
+	var testItem *Send
+
+	testItem = &Send{
+		name: "Foo",
+	}
+
+
+	queueManager := NewQueueManager(100, 10000, 10000, 10*time.Millisecond, NewReceiveListener(func(interface{}) {
 		atomic.AddInt32(&counter, 1)
 
 	}))
@@ -22,7 +33,7 @@ func BenchmarkQueue(b *testing.B) {
 
 	go func() {
 		for i := 0; i < total; i++ {
-			sendQueue.Send(i)
+			sendQueue.Send(testItem)
 		}
 		sendQueue.FlushSends()
 		<-time.NewTimer(100 * time.Millisecond).C
