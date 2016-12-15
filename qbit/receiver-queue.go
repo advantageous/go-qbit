@@ -7,6 +7,7 @@ type BasicReceiveQueue struct {
 	channel         chan *ChannelBuffer
 	lastBuffer      *ChannelBuffer
 	lastBufferIndex int
+	timer 		*time.Timer
 }
 
 func NewBasicReceiveQueue(waitDuration time.Duration, channel chan *ChannelBuffer) ReceiveQueue {
@@ -14,6 +15,7 @@ func NewBasicReceiveQueue(waitDuration time.Duration, channel chan *ChannelBuffe
 	return &BasicReceiveQueue{
 		waitDuration: waitDuration,
 		channel:      channel,
+		timer: time.NewTimer(waitDuration),
 	}
 }
 
@@ -81,13 +83,13 @@ func (brq *BasicReceiveQueue) ReadBatchWait() *ChannelBuffer {
 		return brq.returnBatch()
 	}
 
-	timer := time.NewTimer(brq.waitDuration)
+	brq.timer.Reset(brq.waitDuration)
 
 	select {
 	case items := <-brq.channel:
-		timer.Stop()
+		brq.timer.Stop()
 		return items
-	case <-timer.C:
+	case <-brq.timer.C:
 		return nil
 	}
 }
