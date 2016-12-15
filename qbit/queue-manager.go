@@ -1,6 +1,95 @@
 package qbit
 
-func manageQueue(limit int, queue Queue, inputQueue ReceiveQueue, listener ReceiveQueueListener) {
+import (
+	"errors"
+	"sync/atomic"
+	"time"
+)
+
+type BasicQueueManager struct {
+	queue   Queue
+	started int64
+	limit   int
+}
+
+func NewQueueManager(channelSize int, batchSize int, limit int, pollWaitDuration time.Duration, listener ReceiveQueueListener) QueueManager {
+	channel := make(chan []interface{}, channelSize)
+	queue := &BasicQueue{
+		channel:          channel,
+		batchSize:        batchSize,
+		pollWaitDuration: pollWaitDuration,
+	}
+
+	queueManager := &BasicQueueManager{
+		queue: queue,
+		limit: limit,
+	}
+
+	if listener == nil {
+		listener = NewQueueListener(&QueueListener{})
+	}
+	queueManager.startListener(listener)
+	return queueManager
+}
+
+func (bqm *BasicQueueManager) startListener(listener ReceiveQueueListener) error {
+	var err error
+
+	if bqm.Started() {
+		err = errors.New("Queue already started")
+	} else if atomic.CompareAndSwapInt64(&bqm.started, 0, 1) {
+		go manageQueue(bqm.limit, bqm, bqm.queue.ReceiveQueue(), listener)
+	}
+	return err
+}
+
+func (bqm *BasicQueueManager) Started() bool {
+	started := atomic.LoadInt64(&bqm.started)
+	return started == 1
+}
+
+func (bqm *BasicQueueManager) Stopped() bool {
+	started := atomic.LoadInt64(&bqm.started)
+	return started == 0
+}
+
+func (bqm *BasicQueueManager) Queue() Queue {
+	return bqm.queue
+}
+
+func (bqm *BasicQueueManager) SendQueueWithAutoFlush(flushDuration time.Duration) SendQueue {
+
+	sendQueue := NewLockingSendQueue(bqm.queue.SendQueue())
+
+	go func() {
+		for {
+			timer := time.NewTimer(flushDuration)
+			select {
+			case <-timer.C:
+				sendQueue.FlushSends()
+				timer.Reset(flushDuration)
+			}
+
+			if bqm.Stopped() {
+				break
+			}
+		}
+	}()
+
+	return sendQueue
+}
+
+func (bqm *BasicQueueManager) Stop() error {
+	var err error
+	if !bqm.Started() {
+		err = errors.New("Cant' stop Queue, it was not started")
+	} else if atomic.CompareAndSwapInt64(&bqm.started, 1, 0) {
+		err = nil
+	}
+	return err
+}
+
+func manageQueue(limit int, queueManager QueueManager, inputQueue ReceiveQueue, listener ReceiveQueueListener) {
 	listener.Init()
 	var item interface{}
 	count := 0
@@ -21,7 +110,7 @@ OuterLoop:
 			if count >= limit {
 				listener.Limit()
 				count = 0
-				if queue.Stopped() {
+				if queueManager.Stopped() {
 					listener.Shutdown()
 					break OuterLoop
 				}
@@ -37,7 +126,7 @@ OuterLoop:
 		// Get the next item, but wait this time since the queue was empty.
 		// This pauses the queue handling so we don't eat up all of the CPU.
 		item = inputQueue.PollWait()
-		if queue.Stopped() {
+		if queueManager.Stopped() {
 			listener.Shutdown()
 			break OuterLoop
 		}

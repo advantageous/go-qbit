@@ -1,11 +1,11 @@
 package logging
 
 import (
-	"log"
-	"os"
-	"io/ioutil"
 	"io"
+	"io/ioutil"
+	"log"
 	"log/syslog"
+	"os"
 )
 
 type LogLevel byte
@@ -62,44 +62,43 @@ func NewSimpleDebugLogger(name string) Logger {
 }
 
 func NewLogger(name string, logLevel LogLevel, panicOnEmergency bool, emergency io.Writer, alert io.Writer, critical io.Writer,
-error io.Writer, warning io.Writer, notice io.Writer,
-info io.Writer, debug io.Writer) *BasicLogger {
+	error io.Writer, warning io.Writer, notice io.Writer,
+	info io.Writer, debug io.Writer) *BasicLogger {
 
-	logger := BasicLogger{
-	}
+	logger := BasicLogger{}
 	logger.logLevel = logLevel
 	logger.panicOnEmergency = panicOnEmergency
 	logger.alert = log.New(alert,
-		"ALERT    : [" + name + "] - ",
-		log.Ldate | log.Ltime | log.Lshortfile)
+		"ALERT    : ["+name+"] - ",
+		log.Ldate|log.Ltime|log.Lshortfile)
 
 	logger.emergency = log.New(emergency,
-		"EMERGENCY: [" + name + "] - ",
-		log.Ldate | log.Ltime | log.Lshortfile)
+		"EMERGENCY: ["+name+"] - ",
+		log.Ldate|log.Ltime|log.Lshortfile)
 
 	logger.critical = log.New(critical,
-		"CRITICAL : [" + name + "] - ",
-		log.Ldate | log.Ltime | log.Lshortfile)
+		"CRITICAL : ["+name+"] - ",
+		log.Ldate|log.Ltime|log.Lshortfile)
 
 	logger.notice = log.New(notice,
-		"NOTICE   : [" + name + "] - ",
-		log.Ldate | log.Ltime | log.Lshortfile)
+		"NOTICE   : ["+name+"] - ",
+		log.Ldate|log.Ltime|log.Lshortfile)
 
 	logger.debug = log.New(debug,
-		"DEBUG    : [" + name + "] - ",
-		log.Ldate | log.Ltime | log.Lshortfile)
+		"DEBUG    : ["+name+"] - ",
+		log.Ldate|log.Ltime|log.Lshortfile)
 
 	logger.info = log.New(info,
-		"INFO     : [" + name + "] - ",
-		log.Ldate | log.Ltime | log.Lshortfile)
+		"INFO     : ["+name+"] - ",
+		log.Ldate|log.Ltime|log.Lshortfile)
 
 	logger.warning = log.New(warning,
-		"WARN     : [" + name + "] - ",
-		log.Ldate | log.Ltime | log.Lshortfile)
+		"WARN     : ["+name+"] - ",
+		log.Ldate|log.Ltime|log.Lshortfile)
 
 	logger.error = log.New(error,
-		"ERROR    : [" + name + "] - ",
-		log.Ldate | log.Ltime | log.Lshortfile)
+		"ERROR    : ["+name+"] - ",
+		log.Ldate|log.Ltime|log.Lshortfile)
 
 	return &logger
 
@@ -119,29 +118,26 @@ func NewSyslogLogger(logLevel LogLevel, panicOnEmergency bool) Logger {
 
 	var logger Logger
 
-	basicLogger := BasicLogger{
-	}
+	basicLogger := BasicLogger{}
 
 	logger = &basicLogger
 	basicLogger.logLevel = logLevel
 	basicLogger.panicOnEmergency = panicOnEmergency
-	basicLogger.alert, err = syslog.NewLogger(syslog.LOG_ALERT, log.Ldate | log.Ltime | log.Lshortfile)
+	basicLogger.alert, err = syslog.NewLogger(syslog.LOG_ALERT, log.Ldate|log.Ltime|log.Lshortfile)
 
 	if err != nil {
 		logger = NewSimpleLogger("main")
 		logger.WarnError("Unable to attach to simple logger", err)
 	}
 
-	basicLogger.emergency, err = syslog.NewLogger(syslog.LOG_EMERG, log.Ldate | log.Ltime | log.Lshortfile)
-	basicLogger.critical, err = syslog.NewLogger(syslog.LOG_NOTICE, log.Ldate | log.Ltime | log.Lshortfile)
-	basicLogger.notice, err = syslog.NewLogger(syslog.LOG_NOTICE, log.Ldate | log.Ltime | log.Lshortfile)
-	basicLogger.debug, err = syslog.NewLogger(syslog.LOG_DEBUG, log.Ldate | log.Ltime | log.Lshortfile)
-	basicLogger.info, err = syslog.NewLogger(syslog.LOG_INFO, log.Ldate | log.Ltime | log.Lshortfile)
-	basicLogger.warning, err = syslog.NewLogger(syslog.LOG_WARNING, log.Ldate | log.Ltime | log.Lshortfile)
-	basicLogger.error, err = syslog.NewLogger(syslog.LOG_ERR, log.Ldate | log.Ltime | log.Lshortfile)
+	basicLogger.emergency, err = syslog.NewLogger(syslog.LOG_EMERG, log.Ldate|log.Ltime|log.Lshortfile)
+	basicLogger.critical, err = syslog.NewLogger(syslog.LOG_NOTICE, log.Ldate|log.Ltime|log.Lshortfile)
+	basicLogger.notice, err = syslog.NewLogger(syslog.LOG_NOTICE, log.Ldate|log.Ltime|log.Lshortfile)
+	basicLogger.debug, err = syslog.NewLogger(syslog.LOG_DEBUG, log.Ldate|log.Ltime|log.Lshortfile)
+	basicLogger.info, err = syslog.NewLogger(syslog.LOG_INFO, log.Ldate|log.Ltime|log.Lshortfile)
+	basicLogger.warning, err = syslog.NewLogger(syslog.LOG_WARNING, log.Ldate|log.Ltime|log.Lshortfile)
+	basicLogger.error, err = syslog.NewLogger(syslog.LOG_ERR, log.Ldate|log.Ltime|log.Lshortfile)
 
 	return logger
 
 }
-
-
